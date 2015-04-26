@@ -1,6 +1,7 @@
 package com.github.dnvriend.streams
 
 import akka.stream.scaladsl._
+import akka.stream.testkit.scaladsl._
 import scala.collection.immutable
 import scala.concurrent.Future
 
@@ -39,5 +40,39 @@ class AkkaStreamsTest extends TestSpec {
     }
     inputCustomersSource.via(normalizeFlow).runWith(counterSink).toTry should be a 'success
     counter shouldBe 100
+  }
+
+  it should "transform a customer" in {
+    inputCustomersSource
+      .via(normalizeFlow)
+      .runWith(TestSink.probe[OutputCustomer])
+      .request(1)
+      .expectNext() match {
+        case OutputCustomer(_, _) =>
+        case u => fail("Unexpected: " + u)
+      }
+  }
+
+  // Testing Streams
+  // see: http://doc.akka.io/docs/akka-stream-and-http-experimental/1.0-RC1/scala/stream-testkit.html
+  "Probe Sink" should "be testable" in {
+    // Using probe as a Sink allows manual control over demand and assertions over elements coming downstream.
+    // Streams testkit provides a sink that materializes to a TestSubscriber.Probe.
+    Source(1 to 4)
+      .filter(_ % 2 == 0)
+      .map(_ * 2)
+      .runWith(TestSink.probe[Int])
+      .request(2)
+      .expectNext(4, 8)
+      .expectComplete()
+  }
+
+  "Probe Source" should "be testable" in {
+    // A source that materializes to TestPublisher.Probe can be used for asserting demand or controlling when stream
+    // is completed or ended with an error.
+    TestSource.probe[Int]
+      .toMat(Sink.cancelled)(Keep.left)
+      .run()
+      .expectCancellation()
   }
 }

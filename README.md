@@ -1,6 +1,13 @@
 # Introduction to Akka Streams
+- [Akka Streams Activator Template](http://www.typesafe.com/activator/template/akka-stream-scala)
 - [Scraping Reddit with Akka Streams 1.0](https://github.com/pkinsky/akka-streams-example)
-- [Introduction to Akka Streams](http://boldradius.com/blog-post/VS0NpTAAADAACs_E/introduction-to-akka-streams?utm_campaign=Blog&utm_content=14368871&utm_medium=social&utm_source=twitter) by [Walde Waldron](http://boldradius.com/team/U9kfRDIAADEAV8mW/wade)
+- [Introduction to Akka Streams](http://boldradius.com/blog-post/VS0NpTAAADAACs_E/introduction-to-akka-streams)
+
+# Documentation
+- [Akka Streams Documentation](http://doc.akka.io/docs/akka-stream-and-http-experimental/1.0-RC1/scala.html)
+
+# Testing
+- [Testing Streams](http://doc.akka.io/docs/akka-stream-and-http-experimental/1.0-RC1/scala/stream-testkit.html)
 
 # Introduction
 In big data processing, one of the challenges is how to consume and transform large amounts of data efficiently and 
