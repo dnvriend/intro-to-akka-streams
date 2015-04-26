@@ -32,7 +32,7 @@ that it lays it out in the exact terms I have been using. The most basic stream 
 A Source and a Sink.
 
 ## Source
-![A Source]( "A Source")
+![A Source](https://github.com/dnvriend/intro-to-akka-streams/blob/master/img/sink.png "A Source")
 A Source is the input to the stream. It is from here that all the data will flow. Each Source has a single output channel 
 and no input channel. Data flows from the Source, through the output channel, and into whatever might be connected to that 
 Source. Examples of Sources could include a database query, an http request, or even something as simple as a random 
