@@ -1,5 +1,6 @@
 # Introduction to Akka Streams
 This is forked from [BoldRadius](http://boldradius.com/) - [Introduction to Akka Streams](http://boldradius.com/blog-post/VS0NpTAAADAACs_E/introduction-to-akka-streams?utm_campaign=Blog&utm_content=14368871&utm_medium=social&utm_source=twitter) by [Walde Waldron](http://boldradius.com/team/U9kfRDIAADEAV8mW/wade)
+Please have a look at their site and their blogs. They have some of the best tutorials about Scala/Akka!
 
 # Introduction
 In big data processing, one of the challenges is how to consume and transform large amounts of data efficiently and 
@@ -32,10 +33,53 @@ that it lays it out in the exact terms I have been using. The most basic stream 
 A Source and a Sink.
 
 ## Source
-![A Source](https://github.com/dnvriend/intro-to-akka-streams/blob/master/img/sink.png "A Source")
+![A Source](https://github.com/dnvriend/intro-to-akka-streams/blob/master/img/source.png "A Source")
+
 A Source is the input to the stream. It is from here that all the data will flow. Each Source has a single output channel 
 and no input channel. Data flows from the Source, through the output channel, and into whatever might be connected to that 
 Source. Examples of Sources could include a database query, an http request, or even something as simple as a random 
 number generator. In our analogy, this is our water source, which is connected to our pump. It is drawing water from a 
 reservoir and pushing it through our pipes.
+
+## Sink
+![A Sink](https://github.com/dnvriend/intro-to-akka-streams/blob/master/img/sink.png "A Sink")
+
+A Sink is the endpoint for the stream. The data from the stream will eventually find it's way to the Sink. A Sink has a 
+single input channel and no output channel. Data flows into the input channel and collects in the Sink. Examples of Sink 
+behavior could include writing to a database, writing to a file, or aggregating data in memory. This is the capped sink 
+in our analogy. Water is flowing through the pipes and eventually collecting in our sink.
+
+## Runnable Flow
+![A Runnable Flow](https://github.com/dnvriend/intro-to-akka-streams/blob/master/img/runnable_flow.png "A Runnable Flow")
+
+If you connect a Source to a Sink you get a Runnable Flow. This is the most basic complete form you can make in Akka Streams. 
+Your stream is ready to use and data will now flow through it. Until you connect both a Source and a Sink, the data can not flow. 
+Again, looking to our analogy, if you have a water source and a pump, but nowhere to pump the water to, then you don't have a 
+complete system. Conversely, if you have a sink, but no water to pump into it, then again it isn't a complete system. 
+Only when you connect the two do you get a complete system.
+
+## Flow
+![A Flow](https://github.com/dnvriend/intro-to-akka-streams/blob/master/img/flow.png "A Flow")
+
+While you can do a lot with just a Source and a Sink, things get more interesting when you add a Flow into the mix. 
+A Flow can be used to apply transformations to the data coming out of a Source before putting it into a Sink. The Flow 
+then has a single input channel and a single output channel. This allows it to be connected to both a Source and a Sink. 
+Connecting a Flow to just a Source gives you a new Source. Connecting a Flow to just a Sink gives you a new Sink. 
+Connecting a Source, Flow and Sink gives you a Runnable Flow. For our analogy this is the equivalent of putting a bend 
+in the pipes, or perhaps narrowing or widening the pipes to change the flow rate. You are providing some way to alter the 
+flow of the water.
+
+
+## A Chain
+![A Chain](https://github.com/dnvriend/intro-to-akka-streams/blob/master/img/chain.png "A Chain")
+
+Because Flows have both an input and an output you can chain them together allowing data to flow from a single Source, 
+through multiple Flows and finally into the Sink.
+
+A Runnable Flow, no matter how complex, includes all the facilities for back pressure. Data flows through the system one 
+way, but requests for additional data to flow back through the system in the other direction. Under the hood, the Sink 
+sends a request back through the Flows to the Source. This request notifies the Source that the Sink is ready to handle 
+some more data. The Source will then push a set amount of data through the Flows into the Sink. The Sink will then 
+process this data and when it has finished it will send another request for more data. This means that if the Sink gets 
+backed up, then the time between those requests will increase and the necessary back pressure is generated.
 
