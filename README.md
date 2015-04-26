@@ -9,11 +9,7 @@
 # Testing
 - [Testing Streams](http://doc.akka.io/docs/akka-stream-and-http-experimental/1.0-RC1/scala/stream-testkit.html)
 
-# Introduction
-In big data processing, one of the challenges is how to consume and transform large amounts of data efficiently and 
-within a fixed set of resources. There are a few key problems faced when trying to consume the data.
-
-## The first is blocking.
+## Blocking
 Blocking typically occurs in a "pull" based system. These systems pull data as required. The problem is that when 
 there is no data to pull, they often block the thread which is inefficient.
 
@@ -22,7 +18,7 @@ connected to a water source. We put a pump on the end of the pipes that will pul
 out at our destination. The problem here is that when we run out of water, the pump doesn't know there is a problem 
 and continues to try to pull water. Do this long enough and your pump will burn out.
 
-## The second is back pressure.
+## Back Pressure
 In a "push" based system, it is possible for the producer to create more data than the consumer can handle which can 
 cause the consumer to crash.
 
@@ -30,7 +26,7 @@ Our push scenario moves the pump to the other end. Now we are pumping water into
 at the other end. The pump can be triggered by a float so it only works when there is water to pump. The problem is the 
 sink is not capped. This means that when we fill it up, the water just overflows and the pump keeps pumping. Also not good.
 
-## Akka Streams attempts to solve both of these problems.
+## Akka Streams
 What we need is a system which puts a pump at the water source and also puts a cap on the sink. This means that the 
 pump at the source will only run when there is water to pump, and meanwhile the sink will fill up and because it is 
 capped it will create back pressure when it is full. The back pressure can trigger the pump to stop pumping again.
@@ -75,7 +71,6 @@ Connecting a Flow to just a Source gives you a new Source. Connecting a Flow to 
 Connecting a Source, Flow and Sink gives you a Runnable Flow. For our analogy this is the equivalent of putting a bend 
 in the pipes, or perhaps narrowing or widening the pipes to change the flow rate. You are providing some way to alter the 
 flow of the water.
-
 
 ## A Chain
 ![A Chain](https://github.com/dnvriend/intro-to-akka-streams/blob/master/img/chain.png "A Chain")
