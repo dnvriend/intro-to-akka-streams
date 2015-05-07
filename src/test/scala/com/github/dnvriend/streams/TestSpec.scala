@@ -12,7 +12,7 @@ trait TestSpec extends FlatSpec with Matchers with ScalaFutures with BeforeAndAf
   implicit val system: ActorSystem = ActorSystem("TestSystem")
   implicit val ec: ExecutionContext = system.dispatcher
   implicit val flowMaterializer = ActorFlowMaterializer()
-  val log: LoggingAdapter = Logging(system, this.getClass)
+  implicit val log: LoggingAdapter = Logging(system, this.getClass)
 
   implicit class FutureToTry[T](f: Future[T]) {
     def toTry: Try[T] = Try(f.futureValue)
