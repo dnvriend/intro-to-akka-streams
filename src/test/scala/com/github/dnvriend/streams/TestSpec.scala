@@ -4,17 +4,16 @@ import akka.actor.ActorSystem
 import akka.event.{Logging, LoggingAdapter}
 import akka.stream.ActorFlowMaterializer
 import akka.stream.scaladsl._
+import io.scalac.amqp.{Connection, Direct, Exchange, Queue}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{BeforeAndAfterAll, FlatSpec, Matchers}
 import slick.dbio.DBIO
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcBackend
-
-import io.scalac.amqp.{Connection, Direct, Exchange, Queue}
 import spray.json.DefaultJsonProtocol
 
-import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.concurrent.duration._
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
 case class Order(orderId: String, name: Option[String], address: Option[String])
@@ -39,15 +38,15 @@ trait TestSpec extends FlatSpec with Matchers with ScalaFutures with BeforeAndAf
 
   println("inserting items in DB")
 
-  val start = System.currentTimeMillis()
-  val r = Source(1 to 100) // 100000
-    .map(id => DatabaseDomain.orders += Order(s"$id", Option(s"name-$id"), Option(s"address-$id")))
-    .mapAsync(10) { cmd => db.run(cmd) }
-    .runWith(Sink.foreach(_ => ()))
-
-  println("Done: " + r.futureValue + " took: " + (System.currentTimeMillis() - start))
-
   val orders = DatabaseDomain.orders
+
+  val start = System.currentTimeMillis()
+  val flow: Future[Unit] = Source(1 to 1000) // 100000
+    .map(id => orders += Order(s"$id", Option(s"name-$id"), Option(s"address-$id")))
+    .mapAsync(10) (db.run)
+    .runForeach(_ => ())
+
+  println("Done: " + flow.futureValue + " took: " + (System.currentTimeMillis() - start) + "ms")
 
   override protected def afterAll(): Unit = {
     system.shutdown()
@@ -63,9 +62,6 @@ class Orders(tag: Tag) extends Table[Order](tag, "orders") {
 }
 
 object DatabaseDomain extends JdbcBackend {
-
-  import scala.concurrent.ExecutionContext.Implicits.global
-
   val db = Database.forConfig("mydb")
 
   val orders = TableQuery[Orders]
