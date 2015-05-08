@@ -103,27 +103,26 @@ class AkkaStreamsTest extends TestSpec {
       .expectComplete()
   }
 
-  case class Order(id: Option[String] = None, name: Option[String] = None, address: Option[String] = None)
   val id1 = UUID.randomUUID().toString
   val id2 = UUID.randomUUID().toString
 
   it should "process orders" in {
     def name: Future[String] = Promise.successful("Dennis").future
-    def address: Future[String] = Promise.successful("Almere").future
+    def address: Future[String] = Promise.successful("Somewhere").future
 
-    Source(List(Order(Option(id1)), Order(Option(id2))))
+    Source(List(Order(id1, None, None), Order(id2, None, None)))
       .mapAsync(1) { order => name.map(name => order.copy(name = Option(name))) }
       .mapAsync(1) { order => address.map(address => order.copy(address = Option(address))) }
       .runWith(TestSink.probe[Order])
       .request(3)
-      .expectNext(Order(Option(id1), Option("Dennis"), Option("Almere")))
-      .expectNext(Order(Option(id2), Option("Dennis"), Option("Almere")))
+      .expectNext(Order(id1, Option("Dennis"), Option("Somewhere")))
+      .expectNext(Order(id2, Option("Dennis"), Option("Somewhere")))
       .expectComplete()
   }
 
   val nameFlow = Flow[Order].map { order => order.copy(name = Option("Dennis")) }
-  val addressFlow = Flow[Order].map { order => order.copy(address = Option("Almere")) }
-  val orderSource = Source(List(Order(Option(id1)), Order(Option(id2))))
+  val addressFlow = Flow[Order].map { order => order.copy(address = Option("Somewhere")) }
+  val orderSource = Source(List(Order(id1, None, None), Order(id2, None, None)))
   val testSink = TestSink.probe[Order]
   val bcast = Broadcast[Order](2)
   val merge = Merge[Order](2)
@@ -134,8 +133,8 @@ class AkkaStreamsTest extends TestSpec {
       .via(addressFlow)
       .runWith(testSink)
       .request(3)
-      .expectNext(Order(Option(id1), Option("Dennis"), Option("Almere")))
-      .expectNext(Order(Option(id2), Option("Dennis"), Option("Almere")))
+      .expectNext(Order(id1, Option("Dennis"), Option("Somewhere")))
+      .expectNext(Order(id2, Option("Dennis"), Option("Somewhere")))
       .expectComplete()
   }
 

@@ -161,6 +161,10 @@ Source(queue).map(_.message).to(Sink(exchange)).run()
 
 - [Apache Kafka Documentation](http://kafka.apache.org/documentation.html)
 
+## Slick
+- [Activator Template - Hello Slick](https://github.com/typesafehub/activator-hello-slick#slick-3.0)
+- [Activator Template - Slick Plain SQL](https://github.com/typesafehub/activator-slick-plainsql)
+
 # Introduction
 ## Blocking
 Blocking typically occurs in a "pull" based system. These systems pull data as required. The problem is that when 

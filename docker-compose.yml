@@ -1,0 +1,13 @@
+rabbitmq:
+  image: rabbitmq:3.5.1-management
+  ports:
+    - "8080:15672"  # management port (guest:guest)
+    - "5672:5672"   # amqp port
+    - "25672:25672" # cluster port
+  environment:
+    - "RABBITMQ_NODENAME=my-rabbit"
+
+postgres:
+  image: training/postgres
+  ports:
+    - "5432:5432"  # credentials (docker:docker)
