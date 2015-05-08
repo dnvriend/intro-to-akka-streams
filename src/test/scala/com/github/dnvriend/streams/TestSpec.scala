@@ -9,7 +9,8 @@ import slick.dbio.DBIO
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcBackend
 
-import io.scalac.amqp.{Direct, Exchange, Queue}
+import io.scalac.amqp.{Connection, Direct, Exchange, Queue}
+import spray.json.DefaultJsonProtocol
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration._
@@ -17,19 +18,27 @@ import scala.util.Try
 
 case class Order(orderId: String, name: Option[String], address: Option[String])
 
-trait TestSpec extends FlatSpec with Matchers with ScalaFutures with BeforeAndAfterAll with DatabaseDomain {
+trait TestSpec extends FlatSpec with Matchers with ScalaFutures with BeforeAndAfterAll with RabbitConnection with DefaultJsonProtocol {
   implicit val system: ActorSystem = ActorSystem("TestSystem")
   implicit val pc: PatienceConfig = PatienceConfig(timeout = 50.seconds)
   implicit val ec: ExecutionContext = system.dispatcher
   implicit val flowMaterializer = ActorFlowMaterializer()
   implicit val log: LoggingAdapter = Logging(system, this.getClass)
 
+  implicit val orderJsonFormat = jsonFormat3(Order)
+
   implicit class FutureToTry[T](f: Future[T]) {
     def toTry: Try[T] = Try(f.futureValue)
   }
 
+  val db = DatabaseDomain.db
+    initRabbitMQ().flatMap { _ =>
+      DatabaseDomain.init
+    }.futureValue
+
+  val orders = DatabaseDomain.orders
+
   override protected def afterAll(): Unit = {
-    db.close()
     system.shutdown()
     system.awaitTermination()
   }
@@ -42,26 +51,46 @@ class Orders(tag: Tag) extends Table[Order](tag, "orders") {
   def * = (orderId, name.?, address.?) <> (Order.tupled, Order.unapply)
 }
 
-trait DatabaseDomain extends JdbcBackend {
+object DatabaseDomain extends JdbcBackend {
+  import scala.concurrent.ExecutionContext.Implicits.global
+  val db = Database.forConfig("mydb")
 
-  def orders = TableQuery[Orders]
+  val orders = TableQuery[Orders]
 
-  implicit val db: Database = Database.forConfig("mydb")
-  def schema = orders.schema
+  val schema = orders.schema
 
-  def insertOrdersAction = (1 to 100).map(id => orders += Order(s"$id", Option(s"name-$id"), Option(s"address-$id"))).toList
+  val createOrders = (1 to 100).map(id => orders += Order(s"$id", Option(s"name-$id"), Option(s"address-$id"))).toList
 
-  def databaseActions = List(schema.drop, schema.create) ++ insertOrdersAction
+  def init()(implicit ec: ExecutionContext) = db.run(schema.create)
+    .recoverWith { case t: Throwable =>
+      println("drop-create")
+      db.run(DBIO.seq(schema.drop, schema.create))
+    }
+    .flatMap { _ =>
+      db.run(DBIO.seq(createOrders: _*))
+    }
+}
 
-  def initDatabase: Future[Unit] = db.run(DBIO.seq(databaseActions:_*))
+trait RabbitConnection {
+  val connection = Connection()
 
-  //  db.run(orders.result).foreach(println)
-  //  val q = for(o <- orders) yield o.name
-  //  db.run(q.result).foreach(println)
+  def initRabbitMQ()(implicit ec: ExecutionContext): Future[Unit] =
+    Future.sequence(List(
+      // declare and bind to the orders queue
+      connection.exchangeDeclare(RabbitRegistry.outboundOrderExchange),
+      connection.queueDeclare(RabbitRegistry.inboundOrdersQueue)
+    ))
+    .flatMap { _ =>
+      connection.queueBind(RabbitRegistry.inboundOrdersQueue.name, RabbitRegistry.outboundOrderExchange.name, "")
+    }.map(_ => ())
 }
 
 object RabbitRegistry {
   // exchange and queues here
+
+  val outboundOrderExchange = Exchange("orders.outbound.exchange", Direct, durable = true)
+
+  val inboundOrdersQueue = Queue("orders.inbound.queue")
 }
 
 trait FlowFactory {

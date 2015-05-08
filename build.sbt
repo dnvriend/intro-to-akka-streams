@@ -11,6 +11,7 @@ libraryDependencies ++= {
   "com.typesafe.akka"  %%  "akka-actor"                      % akkaVersion,
   "com.typesafe.akka"  %%  "akka-kernel"                     % akkaVersion,
   "com.typesafe.akka"  %%  "akka-stream-experimental"        % streamsVersion,
+  "io.spray"           %%  "spray-json"                      % "1.3.2",
   "com.typesafe.slick" %% "slick"                            % "3.0.0",
   "com.zaxxer"          % "HikariCP-java6"                   % "2.3.5",
   "org.postgresql"      % "postgresql"                       % "9.4-1201-jdbc41",
@@ -20,3 +21,5 @@ libraryDependencies ++= {
   "org.scalatest"      %% "scalatest"                        % "2.2.4"        % Test
  )
 }
+
+parallelExecution in Test := false

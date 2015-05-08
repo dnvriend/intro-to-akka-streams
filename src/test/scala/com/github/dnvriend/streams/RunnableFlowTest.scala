@@ -2,8 +2,11 @@ package com.github.dnvriend.streams
 
 import akka.stream.scaladsl._
 import akka.stream.testkit.scaladsl._
+import akka.util.ByteString
+import io.scalac.amqp.{Message, Routed}
 import slick.backend.DatabasePublisher
 import slick.driver.PostgresDriver.api._
+import spray.json._
 
 import scala.concurrent.Future
 
@@ -88,7 +91,9 @@ class RunnableFlowTest extends TestSpec {
 
     // an empty source
     val s4: Source[String, Unit] = Source.empty[String]
+  }
 
+  it should "slick order names" in {
     // from a Slick result
     val orderNameQuery = for(o <- orders) yield o.name
     val orderNameActions = orderNameQuery.result
@@ -97,7 +102,9 @@ class RunnableFlowTest extends TestSpec {
     orderNameSource
       .runWith(Sink.foreach(println(_)))
       .toTry should be a 'success
+  }
 
+  it should "slick orders" in {
     // from a Slick result
     val allOrdersAction = orders.result
     val allOrdersProducer: DatabasePublisher[Order] = db.stream(allOrdersAction)
@@ -105,6 +112,27 @@ class RunnableFlowTest extends TestSpec {
     allOrdersSource
       .runWith(Sink.foreach(println(_)))
       .toTry should be a 'success
+  }
+
+  it should "place orders on RabbitMQ" in {
+    val allOrdersAction = orders.result
+    val allOrdersProducer: DatabasePublisher[Order] = db.stream(allOrdersAction)
+    val allOrdersSource: Source[Order, Unit] = Source(allOrdersProducer)
+    val processedOrdersSink: Sink[Routed, Unit] = Sink(connection.publish(RabbitRegistry.outboundOrderExchange.name))
+    val mapToJsonFlow = Flow[Order].map { order => order.toJson.compactPrint }
+    val mapToRoutedFlow = Flow[String].map { orderJson => Routed(routingKey = "", Message(body = ByteString(orderJson))) }
+    val countSink = Sink.fold[Int, Order](0) { case (c, _) => c + 1}
+
+//    val g = FlowGraph.closed { implicit builder =>
+//      import FlowGraph.Implicits._
+//
+//      val bcast = builder.add(Broadcast[Order](2))
+//      allOrdersSource ~> bcast ~> mapToJsonFlow ~> mapToRoutedFlow ~> processedOrdersSink
+//      bcast ~> countSink
+//    }.run()
+
+    allOrdersSource.via(mapToJsonFlow).via(mapToRoutedFlow).runWith(processedOrdersSink)
+    Thread.sleep(2000)
   }
 
   "Sinks" should "be created" in {
