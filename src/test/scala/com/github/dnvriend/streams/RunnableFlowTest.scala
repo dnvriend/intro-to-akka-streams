@@ -100,7 +100,7 @@ class RunnableFlowTest extends TestSpec {
     val orderNameProducer: DatabasePublisher[String] = db.stream(orderNameActions)
     val orderNameSource: Source[String, Unit] = Source(orderNameProducer)
     orderNameSource
-      .runWith(Sink.foreach(println(_)))
+      .runForeach(println)
       .toTry should be a 'success
   }
 
@@ -110,7 +110,7 @@ class RunnableFlowTest extends TestSpec {
     val allOrdersProducer: DatabasePublisher[Order] = db.stream(allOrdersAction)
     val allOrdersSource: Source[Order, Unit] = Source(allOrdersProducer)
     allOrdersSource
-      .runWith(Sink.foreach(println(_)))
+      .runForeach(println)
       .toTry should be a 'success
   }
 
@@ -142,13 +142,17 @@ class RunnableFlowTest extends TestSpec {
     // add the components to the graph builder. They can then be used in the graph
     val g = FlowGraph.closed(sourceOrders, sinkRabbit, sinkCount)((_, _, _)) { implicit builder =>
      (src, sinkRabbit, sink) =>
-      import FlowGraph.Implicits._
-      val broadcast = builder.add(Broadcast[Order](2))
+        import FlowGraph.Implicits._
+        val broadcast = builder.add(Broadcast[Order](3))
+
+        val foreachSink = Sink.foreach(println)
 
         src ~> broadcast.in
         broadcast.out(0) ~> sinkRabbit
         broadcast.out(1) ~> sink
-      }
+        broadcast.out(2) ~> foreachSink
+     } // end of graph
+
       val (_, _, future) = g.run()
       println("Processed: " + future.futureValue + " messages")
    }
