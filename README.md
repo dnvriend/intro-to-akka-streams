@@ -23,6 +23,7 @@
 - [Testing Streams](http://doc.akka.io/docs/akka-stream-and-http-experimental/1.0-RC1/scala/stream-testkit.html)
 
 ## Slides
+- [Konrad Malawski - Reactive Streams / Akka Streams - GeeCON Prague 2014](http://www.slideshare.net/ktoso/reactive-streams-akka-streams-geecon-prague-2014)
 - [Reactive Streams and RabbitMQ](http://www.slideshare.net/mkiedys/reactive-streams-and-rabbitmq)
 
 ## Github
