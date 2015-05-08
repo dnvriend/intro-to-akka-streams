@@ -1,14 +1,167 @@
 # Introduction to Akka Streams
-- [Akka Streams Activator Template](http://www.typesafe.com/activator/template/akka-stream-scala)
+> Stream processing is a different paradigm to the Actor Model or to Future composition, therefore it may take some 
+> careful study of this subject until you feel familiar with the tools and techniques.
+-- <cite>Akka Streams Documentation</cite>
+
+## Documentation
+- [Akka Streams Documentation](http://doc.akka.io/docs/akka-stream-and-http-experimental/1.0-RC2/scala.html)
+- [Quick Start - Reactive Tweets](http://doc.akka.io/docs/akka-stream-and-http-experimental/1.0-RC2/scala/stream-quickstart.html#stream-quickstart-scala)
+- [Akka Streams API](http://doc.akka.io/api/akka-stream-and-http-experimental/1.0-RC2/)
+- [Design Principles behind Reactive Streams](http://doc.akka.io/docs/akka-stream-and-http-experimental/1.0-RC2/stream-design.html#stream-design)
+- [Streams Cookbook](http://doc.akka.io/docs/akka-stream-and-http-experimental/1.0-RC2/scala/stream-cookbook.html#stream-cookbook-scala)
+- [Overview of built-in stages and their semantics](http://doc.akka.io/docs/akka-stream-and-http-experimental/1.0-RC2/stages-overview.html#stages-overview)
+- [Integrating with Actors, external services and reactive streams](http://doc.akka.io/docs/akka-stream-and-http-experimental/1.0-RC2/scala/stream-integrations.html)
+- [Reactive Streams](http://www.reactive-streams.org/)
+
+## Blogs
+- [Jon Brisbin - The Reactive Streams Project: Tribalism as a Force for Good](http://jbrisbin.com/post/82994020622/the-reactive-streams-project-tribalism-as-a-force)
+- [Adam Warski - Reactive Queue with Akka Reactive Streams](http://www.warski.org/blog/2014/06/reactive-queue-with-akka-reactive-streams/)
+- [Boldradius - Introduction to Akka Streams](http://boldradius.com/blog-post/VS0NpTAAADAACs_E/introduction-to-akka-streams)
 - [Scraping Reddit with Akka Streams 1.0](https://github.com/pkinsky/akka-streams-example)
-- [Introduction to Akka Streams](http://boldradius.com/blog-post/VS0NpTAAADAACs_E/introduction-to-akka-streams)
 
-# Documentation
-- [Akka Streams Documentation](http://doc.akka.io/docs/akka-stream-and-http-experimental/1.0-RC1/scala.html)
-
-# Testing
+## Testing
 - [Testing Streams](http://doc.akka.io/docs/akka-stream-and-http-experimental/1.0-RC1/scala/stream-testkit.html)
 
+## Slides
+- [Reactive Streams and RabbitMQ](http://www.slideshare.net/mkiedys/reactive-streams-and-rabbitmq)
+
+## Github
+- [ScalaConsultants Team Blog - Akka Streams and RabbitMQ](http://blog.scalac.io/2014/06/23/akka-streams-and-rabbitmq.html)
+- [Reactive RabbitMq Activator Template](https://github.com/jczuchnowski/rabbitmq-akka-stream#master)
+
+## Activator Template
+- [Akka Streams Activator Template](http://www.typesafe.com/activator/template/akka-stream-scala)
+
+## Video
+- [Youtube - Introducing Reactive Streams](https://www.youtube.com/watch?v=khmVMvlP_QA)
+- [Youtube - Spray and Akka HTTP](https://www.youtube.com/watch?v=o5PUDI4qi10)
+- [Youtube - Reactive Stream Processing with Akka Streams](https://www.youtube.com/watch?v=XCP6zg46utU)
+- [Youtube - Netflix JavaScript Talks - Async JavaScript with Reactive Extensions](https://www.youtube.com/watch?v=XRYN2xt11Ek)
+- [Youtube - Asynchronous Programming at Netflix](https://www.youtube.com/watch?v=gawmdhCNy-A)
+- [Youtube - Building Reactive applications with Spring Reactor and the Reactive Streams standard](https://www.youtube.com/watch?v=AvwZEWu5PPc)
+- [Youtube - Typesafe - Play All Day: Reactive Streams and Play 3.0](https://www.youtube.com/watch?v=0i0RRZvARkM)
+- [Youtube - Dr. Roland Kuhn - Reactive Streams: Handling Data-Flows the Reactive Way](https://www.youtube.com/watch?v=oUnfAcwDQr4)
+- [Youtube - Reactive Streams - Tim Harper](https://www.youtube.com/watch?v=xJn2kMHUl6s)
+- [Youtube - Reactive microservices with Reactor - Stephane Maldini](https://www.youtube.com/watch?v=lzkBo3YTvAQ)
+- [Youtube - Reactive Stream Processing with kafka-rx](https://www.youtube.com/watch?v=S-Ynyel9pkk)
+- [Youtube - Technology Hour - Implementing the Reactive Manifesto with Akka - Adam Warski](https://www.youtube.com/watch?v=LXEhQPEupX8)
+- [What does it mean to be Reactive? - Erik Meijer](https://www.youtube.com/watch?v=sTSQlYX5DU0)
+- [Typesafe - Going Reactive in Java with Typesafe Reactive Platform](https://www.youtube.com/watch?v=y70Z5S2eSIo)
+- [Typesafe - Deep Dive into the Typesafe Reactive Platform - Akka and Scala](https://www.youtube.com/watch?v=fMWzKEN6uTY)
+- [Typesafe - Deep Dive into the Typesafe Reactive Platform - Activator and Play](https://www.youtube.com/watch?v=EJl9mQ0051g)
+- [Typesafe - What Have The Monads Ever Done For Us with Dick Wall](https://www.youtube.com/watch?v=2IYNPUp751g)
+- [Typesafe - Deep Dive into the Typesafe Reactive Platform - Ecosystem and Tools](https://www.youtube.com/watch?v=3nNerwsqrQI)
+
+## Reactive Kafka
+> Reactive Streams wrapper for Apache Kafka. -- <quote>[Reactive Kafka](https://github.com/softwaremill/reactive-kafka)</quote>
+
+- [Apache Kafka]()
+- [GitHub - Reactive Kafka](https://github.com/softwaremill/reactive-kafka)
+
+*Note:* You will need a configured [Apache Kafka](http://kafka.apache.org/) and [Apache Zookeeper](https://zookeeper.apache.org/).
+
+```scala
+import akka.actor.ActorSystem
+import akka.stream.ActorFlowMaterializer
+import akka.stream.scaladsl.{Sink, Source}
+import com.softwaremill.react.kafka.ReactiveKafka
+
+implicit val materializer = ActorFlowMaterializer()
+implicit  val actorSystem = ActorSystem("ReactiveKafka")
+
+val kafka = new ReactiveKafka(host = "localhost:9092", zooKeeperHost = "localhost:2181")
+val publisher = kafka.consume("lowercaseStrings", "groupName", new StringDecoder())
+val subscriber = kafka.publish("uppercaseStrings", "groupName", new StringEncoder())
+
+
+Source(publisher).map(_.toUpperCase).to(Sink(subscriber)).run()
+```
+
+## Reactive Rabbit
+> Reactive Streams driver for AMQP protocol. Powered by RabbitMQ library. -- <quote>[Reactive Rabbit](https://github.com/ScalaConsultants/reactive-rabbit)</quote>
+
+- [RabbitMq](https://www.rabbitmq.com/)
+- [GitHub - Reactive Rabbit](https://github.com/ScalaConsultants/reactive-rabbit)
+- [Activator Template - RabbitMQ Akka Stream](https://github.com/jczuchnowski/rabbitmq-akka-stream#master)
+
+Note: You will need a RabbitMQ instance and a configured `reactive-rabbit` connection, see the [reference.conf](https://github.com/ScalaConsultants/reactive-rabbit/blob/master/src/main/resources/reference.conf) for more information. Better yet, fire up [Typesafe Activator](https://www.typesafe.com/get-started) and try out the [RabbitMQ Akka Stream](https://github.com/jczuchnowski/rabbitmq-akka-stream) Activator Template.
+
+```scala
+import akka.actor.ActorSystem
+import akka.stream.ActorFlowMaterializer
+import akka.stream.scaladsl.{Sink, Source}
+import io.scalac.amqp.Connection
+
+// streaming invoices to Accounting Department
+val connection = Connection()
+val queue = connection.consume(queue = "invoices")
+val exchange = connection
+                .publish(
+                  exchange = "accounting_department",
+                  routingKey = "invoices"
+                  )
+
+implicit val system = ActorSystem()
+implicit val materializer = ActorFlowMaterializer()
+
+// (queue) ~> (sink)
+Source(queue).map(_.message).to(Sink(exchange)).run()
+```
+
+# RabbitMQ
+> RabbitMQ is open source message broker software (sometimes called message-oriented middleware) that implements the Advanced Message Queuing Protocol (AMQP). The RabbitMQ server is written in the Erlang programming language and is built on the Open Telecom Platform framework for clustering and failover. Client libraries to interface with the broker are available for all major programming languages. -- <quote>[Wikipedia](http://en.wikipedia.org/wiki/RabbitMQ)</quote>
+
+- [RabbitMQ Website](http://www.rabbitmq.com/)
+
+# ActiveMQ
+> Apache ActiveMQ is an open source message broker written in Java together with a full Java Message Service (JMS) client. It provides "Enterprise Features" which in this case means fostering the communication from more than one client or server. Supported clients include Java via JMS 1.1 as well as several other "cross language" clients. The communication is managed with features such as computer clustering and ability to use any database as a JMS persistence provider besides virtual memory, cache, and journal persistency. -- <quote>[Wikipedia](http://en.wikipedia.org/wiki/Apache_ActiveMQ)</quote>
+
+# RabbitMQ vs ActiveMQ
+>RabbitMQ is an AMQP broker, while ActiveMQ is a JMS one. I suggest you read the AMQP [Wikipedia](http://en.wikipedia.org/wiki/Advanced_Message_Queuing_Protocol) article to get an idea of the concepts used in AMQP, which are different than the ones you're familiar in JMS. One of the main difference is that in AMQP a producer sends to an exchange `without knowing the actual message distribution strategy` while in JMS the producer targets either a `queue` or a `topic` (thus being aware of the type of message routing in place). So it's hard to tell what's done better or worse, as the semantics are very different between JMS and AMQP. -- <quote>[Stackoverflow](http://stackoverflow.com/questions/7044157/switching-from-activemq-to-rabbitmq)</quote>
+
+> RabbitMQ's queues and exchanges are all configured via the AMQP protocol so a client library allows you to configure all your destinations and their behavior. ActiveMQ requires specific destination configuration because the JMS spec doesn't cover any of the administration side of things. Besides that, RabbitMQ's system configuration is Erlang-esque, while ActiveMQ is usually configured in XML. So you'll have to get used to the {tuple} and <> lovely syntax. RabbitMQ is usually installed with OS packages,  -- edit (or the `[library/rabbitmq](https://registry.hub.docker.com/u/library/rabbitmq/)` Docker image) -- while ActiveMQ distributions are archives you drop anywhere (or Maven deps you embed into something else). -- <quote>[Stackoverflow](http://stackoverflow.com/questions/7044157/switching-from-activemq-to-rabbitmq)</quote>
+
+## RabbitMQ Video
+- [Youtube - RabbitMQ is the new king](https://www.youtube.com/watch?v=kA8rPIDa388)
+- [Youtube - RabbitMQ: Message that Just Works (Part 1)](https://www.youtube.com/watch?v=ABGMjX4K0D8)
+- [Youtube - RabbitMQ: Message that Just Works (Part 2)](https://www.youtube.com/watch?v=puMLEy5kk2s)
+- [Youtube - RabbitMQ: Message that Just Works (Part 3)](https://www.youtube.com/watch?v=bUA0fMJGQBE)
+- [Youtube - RabbitMQ: Message that Just Works (Part 4)](https://www.youtube.com/watch?v=LWVYaaBH3NY)
+- [Youtube - Reliable Messaging With RabbitMQ](https://www.youtube.com/watch?v=XjuiZM7JzPw)
+- [Youtube - What RabbitMQ Can For You](https://www.youtube.com/watch?v=4lDSwfrfM-I)
+
+## JMS
+> The Java Message Service (JMS) API is a Java Message Oriented Middleware (MOM) API for sending messages between two or more clients. JMS is a part of the Java Platform, Enterprise Edition, and is defined by a specification developed under the Java Community Process as JSR 914. It is a messaging standard that allows application components based on the Java Enterprise Edition (Java EE) to create, send, receive, and read messages. It allows the communication between different components of a distributed application to be loosely coupled, reliable, and asynchronous. -- <quote>[Wikipedia](http://en.wikipedia.org/wiki/Java_Message_Service)</quote>
+
+## AMQP
+> The Advanced Message Queuing Protocol (AMQP) is an open standard application layer protocol for message-oriented middleware. The defining features of AMQP are message orientation, queuing, routing (including point-to-point and publish-and-subscribe), reliability and security.
+-- <quote>[Wikipedia](http://en.wikipedia.org/wiki/Advanced_Message_Queuing_Protocol)</quote>
+
+## MQTT
+> MQTT (formerly Message Queue Telemetry Transport) is a publish-subscribe based "light weight" messaging protocol for use on top of the TCP/IP protocol. It is designed for connections with remote locations where a "small code footprint" is required and/or network bandwidth is limited. The Publish-Subscribe messaging pattern requires a message broker. The broker is responsible for distributing messages to interested clients based on the topic of a message. Andy Stanford-Clark and Arlen Nipper of Cirrus Link Solutions authored the first version of the protocol in 1999. -- <quote>[Wikipedia](http://en.wikipedia.org/wiki/MQTT)</quote>
+
+## STOMP
+> Simple (or Streaming) Text Oriented Message Protocol (STOMP), formerly known as TTMP, is a simple text-based protocol, designed for working with message-oriented middleware. It provides an interoperable wire format that allows STOMP clients to talk with any message broker supporting the protocol. It is thus language-agnostic, meaning a broker developed for one programming language or platform can receive communications from client software developed in another language. -- <quote>[Wikipedia](http://en.wikipedia.org/wiki/Streaming_Text_Oriented_Messaging_Protocol)</quote>
+
+## Slick with Reactive Streams Support
+> Slick is a modern database query and access library for Scala. It allows you to work with stored data almost as if you were using Scala collections while at the same time giving you full control over when a database access happens and which data is transferred. You can write your database queries in Scala instead of SQL, thus profiting from the static checking, compile-time safety and compositionality of Scala. Slick features an extensible query compiler which can generate code for different backends. -- <quote>[Slick](http://slick.typesafe.com/)</quote>
+
+- [Slick 3.0 Streaming](http://slick.typesafe.com/doc/3.0.0/dbio.html#streaming)
+
+## Books
+- [Protocol specification](https://www.rabbitmq.com/resources/specs/amqp0-9-1.pdf)
+
+## Apache Zookeeper
+> Apache ZooKeeper is an effort to develop and maintain an open-source server which enables highly reliable distributed coordination. -- <quote>[Apache Zookeeper](https://zookeeper.apache.org/)</quote>
+
+- [Apache Zookeeper Documentation](https://zookeeper.apache.org/doc/trunk/)
+
+## Apache Kafka
+> Apache Kafka is publish-subscribe messaging rethought as a distributed commit log. -- <quote>[Apache Kafka](http://kafka.apache.org/)</quote>
+
+- [Apache Kafka Documentation](http://kafka.apache.org/documentation.html)
+
+# Introduction
 ## Blocking
 Blocking typically occurs in a "pull" based system. These systems pull data as required. The problem is that when 
 there is no data to pull, they often block the thread which is inefficient.
@@ -84,4 +237,3 @@ sends a request back through the Flows to the Source. This request notifies the 
 some more data. The Source will then push a set amount of data through the Flows into the Sink. The Sink will then 
 process this data and when it has finished it will send another request for more data. This means that if the Sink gets 
 backed up, then the time between those requests will increase and the necessary back pressure is generated.
-
