@@ -23,3 +23,5 @@ libraryDependencies ++= {
 }
 
 parallelExecution in Test := false
+
+fork := true
