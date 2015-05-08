@@ -40,7 +40,7 @@ trait TestSpec extends FlatSpec with Matchers with ScalaFutures with BeforeAndAf
   println("inserting items in DB")
 
   val start = System.currentTimeMillis()
-  val r = Source(1 to 100000)
+  val r = Source(1 to 100) // 100000
     .map(id => DatabaseDomain.orders += Order(s"$id", Option(s"name-$id"), Option(s"address-$id")))
     .mapAsync(10) { cmd => db.run(cmd) }
     .runWith(Sink.foreach(_ => ()))
