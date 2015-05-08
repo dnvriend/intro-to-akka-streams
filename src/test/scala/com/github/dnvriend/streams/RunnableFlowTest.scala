@@ -123,15 +123,10 @@ class RunnableFlowTest extends TestSpec {
     val mapToRoutedFlow = Flow[String].map { orderJson => Routed(routingKey = "", Message(body = ByteString(orderJson))) }
     val countSink = Sink.fold[Int, Order](0) { case (c, _) => c + 1}
 
-//    val g = FlowGraph.closed { implicit builder =>
-//      import FlowGraph.Implicits._
-//
-//      val bcast = builder.add(Broadcast[Order](2))
-//      allOrdersSource ~> bcast ~> mapToJsonFlow ~> mapToRoutedFlow ~> processedOrdersSink
-//      bcast ~> countSink
-//    }.run()
-
-    allOrdersSource.via(mapToJsonFlow).via(mapToRoutedFlow).runWith(processedOrdersSink)
+    allOrdersSource
+      .via(mapToJsonFlow)
+      .via(mapToRoutedFlow)
+      .runWith(processedOrdersSink)
     Thread.sleep(2000)
   }
 
