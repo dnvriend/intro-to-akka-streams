@@ -3,6 +3,8 @@
 > careful study of this subject until you feel familiar with the tools and techniques.
 -- <cite>Akka Streams Documentation</cite>
 
+[<img src="https://img.shields.io/maven-central/v/org.scala-lang.modules/scala-xml_2.11.svg?label="/>]
+
 ## Documentation
 - [Akka Streams Documentation](http://doc.akka.io/docs/akka-stream-and-http-experimental/1.0-RC2/scala.html)
 - [Quick Start - Reactive Tweets](http://doc.akka.io/docs/akka-stream-and-http-experimental/1.0-RC2/scala/stream-quickstart.html#stream-quickstart-scala)
@@ -115,6 +117,12 @@ Source(queue).map(_.message).to(Sink(exchange)).run()
 - [RabbitMQ Website](http://www.rabbitmq.com/)
 - [RabbitMQ Simulator](http://tryrabbitmq.com/)
 
+## Docker
+ - [library/rabbitmq](https://registry.hub.docker.com/u/library/rabbitmq/)
+ 
+## GitHub
+ - [RabbitMQ](https://github.com/docker-library/docs/tree/master/rabbitmq)
+ 
 # Apache ActiveMQ
 > Apache ActiveMQ is an open source message broker written in Java together with a full Java Message Service (JMS) client. It provides "Enterprise Features" which in this case means fostering the communication from more than one client or server. Supported clients include Java via JMS 1.1 as well as several other "cross language" clients. The communication is managed with features such as computer clustering and ability to use any database as a JMS persistence provider besides virtual memory, cache, and journal persistency. -- <quote>[Wikipedia](http://en.wikipedia.org/wiki/Apache_ActiveMQ)</quote>
 
