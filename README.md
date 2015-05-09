@@ -3,8 +3,6 @@
 > careful study of this subject until you feel familiar with the tools and techniques.
 -- <cite>Akka Streams Documentation</cite>
 
-<img src="https://img.shields.io/maven-central/v/org.scala-lang.modules/scala-xml_2.11.svg?label=Scala 2.11"/>
-
 ## Documentation
 - [Akka Streams Documentation](http://doc.akka.io/docs/akka-stream-and-http-experimental/1.0-RC2/scala.html)
 - [Quick Start - Reactive Tweets](http://doc.akka.io/docs/akka-stream-and-http-experimental/1.0-RC2/scala/stream-quickstart.html#stream-quickstart-scala)
