@@ -1,8 +1,8 @@
 package com.github.dnvriend.streams
 
-import akka.actor.ActorSystem
+import akka.actor._
 import akka.event.{Logging, LoggingAdapter}
-import akka.stream.ActorFlowMaterializer
+import akka.stream.{FlowMaterializer, ActorFlowMaterializer}
 import akka.stream.scaladsl._
 import io.scalac.amqp.{Connection, Direct, Exchange, Queue}
 import org.scalatest.concurrent.ScalaFutures
@@ -18,35 +18,27 @@ import scala.util.Try
 
 case class Order(orderId: String, name: Option[String], address: Option[String])
 
-trait TestSpec extends FlatSpec with Matchers with ScalaFutures with BeforeAndAfterAll with RabbitConnection with DefaultJsonProtocol {
+trait TestSpec extends FlatSpec with Matchers with ScalaFutures with BeforeAndAfterAll with DefaultJsonProtocol {
   implicit val system: ActorSystem = ActorSystem("TestSystem")
   implicit val pc: PatienceConfig = PatienceConfig(timeout = 50.seconds)
   implicit val ec: ExecutionContext = system.dispatcher
-  implicit val flowMaterializer = ActorFlowMaterializer()
+  implicit val flowMaterializer: FlowMaterializer = ActorFlowMaterializer()
   implicit val log: LoggingAdapter = Logging(system, this.getClass)
-
   implicit val orderJsonFormat = jsonFormat3(Order)
+  val dbDomain = DatabaseDomain(system)
+  val rabbit = RabbitConnection(system)
+  val orders = dbDomain.orders
+  val db = dbDomain.db
+  val connection = rabbit.connection
 
   implicit class FutureToTry[T](f: Future[T]) {
     def toTry: Try[T] = Try(f.futureValue)
   }
 
-  val db = DatabaseDomain.db
-    initRabbitMQ().flatMap { _ =>
-      DatabaseDomain.init
-    }.futureValue
+  rabbit.init.flatMap { _ =>
+    dbDomain.init
+  }.futureValue
 
-  println("inserting items in DB")
-
-  val orders = DatabaseDomain.orders
-
-  val start = System.currentTimeMillis()
-  val flow: Future[Unit] = Source(1 to 1000) // 100000
-    .map(id => orders += Order(s"$id", Option(s"name-$id"), Option(s"address-$id")))
-    .mapAsync(10) (db.run)
-    .runForeach(_ => ())
-
-  println("Done: " + flow.futureValue + " took: " + (System.currentTimeMillis() - start) + "ms")
 
   override protected def afterAll(): Unit = {
     system.shutdown()
@@ -61,41 +53,66 @@ class Orders(tag: Tag) extends Table[Order](tag, "orders") {
   def * = (orderId, name.?, address.?) <> (Order.tupled, Order.unapply)
 }
 
-object DatabaseDomain extends JdbcBackend {
-  val db = Database.forConfig("mydb")
+object DatabaseDomain extends ExtensionId[DatabaseDomainImpl] with ExtensionIdProvider {
+  override def createExtension(system: ExtendedActorSystem): DatabaseDomainImpl = new DatabaseDomainImpl()(system)
 
-  val orders = TableQuery[Orders]
-
-  val schema = orders.schema
-
-  def init()(implicit ec: ExecutionContext) =
-    db.run(schema.create)
-      .recoverWith { case t: Throwable =>
-      println("drop-create")
-      db.run(DBIO.seq(schema.drop, schema.create))
-    }
+  override def lookup(): ExtensionId[_ <: Extension] = DatabaseDomain
 }
 
-trait RabbitConnection {
-  val connection = Connection()
+class DatabaseDomainImpl()(implicit val system: ExtendedActorSystem) extends JdbcBackend with Extension {
+  implicit val flowMaterializer: FlowMaterializer = ActorFlowMaterializer()
+  implicit val log: LoggingAdapter = Logging(system, this.getClass)
+  implicit val ec = system.dispatcher
 
-  def initRabbitMQ()(implicit ec: ExecutionContext): Future[Unit] =
-    Future.sequence(List(
+  lazy val db = Database.forConfig("mydb")
+
+  lazy val orders = TableQuery[Orders]
+
+  private val schema = orders.schema
+
+  def init: Future[Int] =
+    createSchema.flatMap(_ => fillDb)
+
+  def createSchema: Future[Unit] =
+    db.run(schema.create)
+      .recoverWith { case t: Throwable =>
+      log.info("drop-create")
+      db.run(DBIO.seq(schema.drop, schema.create))
+    }
+
+  def fillDb: Future[Int] =
+    Source(1 to 100) // 100000
+      .map(id => orders += Order(s"$id", Option(s"name-$id"), Option(s"address-$id")))
+      .mapAsync(10) (db.run)
+      .runFold(0) { case (c, _) => c + 1 }
+}
+
+object RabbitConnection extends ExtensionId[RabbitConnectionImpl] with ExtensionIdProvider {
+  override def createExtension(system: ExtendedActorSystem): RabbitConnectionImpl = new RabbitConnectionImpl()(system)
+
+  override def lookup(): ExtensionId[_ <: Extension] = RabbitConnection
+}
+
+class RabbitConnectionImpl()(implicit val system: ExtendedActorSystem) extends Extension {
+  implicit val flowMaterializer: FlowMaterializer = ActorFlowMaterializer()
+  implicit val log: LoggingAdapter = Logging(system, this.getClass)
+  implicit val ec = system.dispatcher
+
+  lazy val connection = Connection()
+
+  def init: Future[Int] =
+    Source(1 to 3)
       // declare and bind to the orders queue
-      connection.exchangeDeclare(RabbitRegistry.outboundOrderExchange),
-      connection.queueDeclare(RabbitRegistry.inboundOrdersQueue)
-    ))
-    .flatMap { _ =>
-      connection.queueBind(RabbitRegistry.inboundOrdersQueue.name, RabbitRegistry.outboundOrderExchange.name, "")
-    }.map(_ => ())
+      .mapAsync(1)(_ => connection.exchangeDeclare(RabbitRegistry.outboundOrderExchange))
+      .mapAsync(1)(_ => connection.queueDeclare(RabbitRegistry.inboundOrdersQueue))
+      .mapAsync(1)(_ => connection.queueBind(RabbitRegistry.inboundOrdersQueue.name, RabbitRegistry.outboundOrderExchange.name, ""))
+      .runFold(0) { case (c, _) => c + 1}
 }
 
 object RabbitRegistry {
-  // exchange and queues here
+  val outboundOrderExchange = Exchange(name = "orders.outbound.exchange", `type` = Direct, durable = true)
 
-  val outboundOrderExchange = Exchange("orders.outbound.exchange", Direct, durable = true)
-
-  val inboundOrdersQueue = Queue("orders.inbound.queue")
+  val inboundOrdersQueue = Queue(name = "orders.inbound.queue", durable = true)
 }
 
 trait FlowFactory {

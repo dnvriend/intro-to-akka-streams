@@ -11,3 +11,9 @@ postgres:
   image: training/postgres
   ports:
     - "5432:5432"  # credentials (docker:docker)
+
+#test:
+#  build: .
+#  links:
+#    - rabbitmq
+#    - postgres

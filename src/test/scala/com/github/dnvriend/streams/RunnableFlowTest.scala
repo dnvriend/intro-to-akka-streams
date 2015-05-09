@@ -141,16 +141,16 @@ class RunnableFlowTest extends TestSpec {
 
     // add the components to the graph builder. They can then be used in the graph
     val g = FlowGraph.closed(sourceOrders, sinkRabbit, sinkCount)((_, _, _)) { implicit builder =>
-     (src, sinkRabbit, sink) =>
+     (src, sinkRabbit, sinkCount) =>
         import FlowGraph.Implicits._
         val broadcast = builder.add(Broadcast[Order](3))
 
-        val foreachSink = Sink.foreach(println)
+        val printlnSink = Sink.foreach[Order](x => log.info("Sending to Rabbit: {}", x))
 
         src ~> broadcast.in
         broadcast.out(0) ~> sinkRabbit
-        broadcast.out(1) ~> sink
-        broadcast.out(2) ~> foreachSink
+        broadcast.out(1) ~> sinkCount
+        broadcast.out(2) ~> printlnSink
      } // end of graph
 
       val (_, _, future) = g.run()

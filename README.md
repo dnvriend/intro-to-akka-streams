@@ -113,14 +113,18 @@ Source(queue).map(_.message).to(Sink(exchange)).run()
 > RabbitMQ is open source message broker software (sometimes called message-oriented middleware) that implements the Advanced Message Queuing Protocol (AMQP). The RabbitMQ server is written in the Erlang programming language and is built on the Open Telecom Platform framework for clustering and failover. Client libraries to interface with the broker are available for all major programming languages. -- <quote>[Wikipedia](http://en.wikipedia.org/wiki/RabbitMQ)</quote>
 
 - [RabbitMQ Website](http://www.rabbitmq.com/)
+- [RabbitMQ Simulator](http://tryrabbitmq.com/)
 
-# ActiveMQ
+# Apache ActiveMQ
 > Apache ActiveMQ is an open source message broker written in Java together with a full Java Message Service (JMS) client. It provides "Enterprise Features" which in this case means fostering the communication from more than one client or server. Supported clients include Java via JMS 1.1 as well as several other "cross language" clients. The communication is managed with features such as computer clustering and ability to use any database as a JMS persistence provider besides virtual memory, cache, and journal persistency. -- <quote>[Wikipedia](http://en.wikipedia.org/wiki/Apache_ActiveMQ)</quote>
 
 # RabbitMQ vs ActiveMQ
->RabbitMQ is an AMQP broker, while ActiveMQ is a JMS one. I suggest you read the AMQP [Wikipedia](http://en.wikipedia.org/wiki/Advanced_Message_Queuing_Protocol) article to get an idea of the concepts used in AMQP, which are different than the ones you're familiar in JMS. One of the main difference is that in AMQP a producer sends to an exchange `without knowing the actual message distribution strategy` while in JMS the producer targets either a `queue` or a `topic` (thus being aware of the type of message routing in place). So it's hard to tell what's done better or worse, as the semantics are very different between JMS and AMQP. -- <quote>[Stackoverflow](http://stackoverflow.com/questions/7044157/switching-from-activemq-to-rabbitmq)</quote>
+> RabbitMQ is an AMQP broker, while ActiveMQ is a JMS one. I suggest you read the AMQP [Wikipedia](http://en.wikipedia.org/wiki/Advanced_Message_Queuing_Protocol) article to get an idea of the concepts used in AMQP, which are different than the ones you're familiar in JMS. One of the main difference is that in AMQP a producer sends to an exchange `without knowing the actual message distribution strategy` while in JMS the producer targets either a `queue` or a `topic` (thus being aware of the type of message routing in place). So it's hard to tell what's done better or worse, as the semantics are very different between JMS and AMQP. -- <quote>[Stackoverflow](http://stackoverflow.com/questions/7044157/switching-from-activemq-to-rabbitmq)</quote>
 
 > RabbitMQ's queues and exchanges are all configured via the AMQP protocol so a client library allows you to configure all your destinations and their behavior. ActiveMQ requires specific destination configuration because the JMS spec doesn't cover any of the administration side of things. Besides that, RabbitMQ's system configuration is Erlang-esque, while ActiveMQ is usually configured in XML. So you'll have to get used to the {tuple} and <> lovely syntax. RabbitMQ is usually installed with OS packages,  -- edit (or the `[library/rabbitmq](https://registry.hub.docker.com/u/library/rabbitmq/)` Docker image) -- while ActiveMQ distributions are archives you drop anywhere (or Maven deps you embed into something else). -- <quote>[Stackoverflow](http://stackoverflow.com/questions/7044157/switching-from-activemq-to-rabbitmq)</quote>
+
+> RabbitMQ’s provisioning capabilities make it the perfect communication bus for anyone building a distributed application, particularly one that leverages cloud-based resources and rapid deployment.
+-- <quote>[RabbitMQ in Action](http://www.manning.com/videla/)</quote>
 
 ## RabbitMQ Video
 - [Youtube - RabbitMQ is the new king](https://www.youtube.com/watch?v=kA8rPIDa388)
@@ -131,21 +135,41 @@ Source(queue).map(_.message).to(Sink(exchange)).run()
 - [Youtube - Reliable Messaging With RabbitMQ](https://www.youtube.com/watch?v=XjuiZM7JzPw)
 - [Youtube - What RabbitMQ Can For You](https://www.youtube.com/watch?v=4lDSwfrfM-I)
 
-## JMS
-> The Java Message Service (JMS) API is a Java Message Oriented Middleware (MOM) API for sending messages between two or more clients. JMS is a part of the Java Platform, Enterprise Edition, and is defined by a specification developed under the Java Community Process as JSR 914. It is a messaging standard that allows application components based on the Java Enterprise Edition (Java EE) to create, send, receive, and read messages. It allows the communication between different components of a distributed application to be loosely coupled, reliable, and asynchronous. -- <quote>[Wikipedia](http://en.wikipedia.org/wiki/Java_Message_Service)</quote>
+# Apache Qpid
+> Apache Qpid, an open-source (Apache 2.0 licensed) messaging system, implements the Advanced Message Queuing Protocol. It provides transaction management, queuing, distribution, security, management, clustering, federation and heterogeneous multi-platform support.
+-- <quote>[Wikipedia](http://en.wikipedia.org/wiki/Apache_Qpid)</quote>
 
-## AMQP
+# JMS
+> The Java Message Service (JMS) API is a Java Message Oriented Middleware (MOM) API for sending messages between two or more clients. JMS is a part of the Java Platform, Enterprise Edition, and is defined by a specification developed under the Java Community Process as JSR 914. It is a messaging standard that allows application components based on the Java Enterprise Edition (Java EE) to create, send, receive, and read messages. It allows the communication between different components of a distributed application to be loosely coupled, reliable, and asynchronous. 
+-- <quote>[Wikipedia](http://en.wikipedia.org/wiki/Java_Message_Service)</quote>
+
+> JMS attempted to solve the lock-in and interoperability problem by providing a common Java API that hides the actual interface to the individual vendor MQ products.
+-- <quote>[RabbitMQ in Action](http://www.manning.com/videla/)</quote>
+
+# AMQP
 > The Advanced Message Queuing Protocol (AMQP) is an open standard application layer protocol for message-oriented middleware. The defining features of AMQP are message orientation, queuing, routing (including point-to-point and publish-and-subscribe), reliability and security.
 -- <quote>[Wikipedia](http://en.wikipedia.org/wiki/Advanced_Message_Queuing_Protocol)</quote>
 
-## MQTT
-> MQTT (formerly Message Queue Telemetry Transport) is a publish-subscribe based "light weight" messaging protocol for use on top of the TCP/IP protocol. It is designed for connections with remote locations where a "small code footprint" is required and/or network bandwidth is limited. The Publish-Subscribe messaging pattern requires a message broker. The broker is responsible for distributing messages to interested clients based on the topic of a message. Andy Stanford-Clark and Arlen Nipper of Cirrus Link Solutions authored the first version of the protocol in 1999. -- <quote>[Wikipedia](http://en.wikipedia.org/wiki/MQTT)</quote>
+-- <quote>[AMQP is the IP of business systems](https://www.youtube.com/watch?v=SXZJau292Uw)</quote>
 
-## STOMP
-> Simple (or Streaming) Text Oriented Message Protocol (STOMP), formerly known as TTMP, is a simple text-based protocol, designed for working with message-oriented middleware. It provides an interoperable wire format that allows STOMP clients to talk with any message broker supporting the protocol. It is thus language-agnostic, meaning a broker developed for one programming language or platform can receive communications from client software developed in another language. -- <quote>[Wikipedia](http://en.wikipedia.org/wiki/Streaming_Text_Oriented_Messaging_Protocol)</quote>
+- [Youtube - Understanding AMQP 1.0](https://www.youtube.com/watch?v=SXZJau292Uw)
+- [Youtube - Advanced Message Queuing Protocol](https://www.youtube.com/watch?v=lz-aofC3nkU)
 
-## Slick with Reactive Streams Support
-> Slick is a modern database query and access library for Scala. It allows you to work with stored data almost as if you were using Scala collections while at the same time giving you full control over when a database access happens and which data is transferred. You can write your database queries in Scala instead of SQL, thus profiting from the static checking, compile-time safety and compositionality of Scala. Slick features an extensible query compiler which can generate code for different backends. -- <quote>[Slick](http://slick.typesafe.com/)</quote>
+# MQTT
+> MQTT (formerly Message Queue Telemetry Transport) is a publish-subscribe based "light weight" messaging protocol for use on top of the TCP/IP protocol. It is designed for connections with remote locations where a "small code footprint" is required and/or network bandwidth is limited. The Publish-Subscribe messaging pattern requires a message broker. The broker is responsible for distributing messages to interested clients based on the topic of a message. Andy Stanford-Clark and Arlen Nipper of Cirrus Link Solutions authored the first version of the protocol in 1999. 
+-- <quote>[Wikipedia](http://en.wikipedia.org/wiki/MQTT)</quote>
+
+# STOMP
+> Simple (or Streaming) Text Oriented Message Protocol (STOMP), formerly known as TTMP, is a simple text-based protocol, designed for working with message-oriented middleware. It provides an interoperable wire format that allows STOMP clients to talk with any message broker supporting the protocol. It is thus language-agnostic, meaning a broker developed for one programming language or platform can receive communications from client software developed in another language. 
+-- <quote>[Wikipedia](http://en.wikipedia.org/wiki/Streaming_Text_Oriented_Messaging_Protocol)</quote>
+
+# XMPP
+> Extensible Messaging and Presence Protocol (XMPP) is a communications protocol for message-oriented middleware based on XML (Extensible Markup Language). It enables the near-real-time exchange of structured yet extensible data between any two or more network entities. The protocol was originally named Jabber, and was developed by the Jabber open-source community in 1999 for near real-time instant messaging (IM), presence information, and contact list maintenance. Designed to be extensible, the protocol has also been used for publish-subscribe systems, signalling for VoIP, video, file transfer, gaming, Internet of Things (IoT) applications such as the smart grid, and social networking services.
+-- <quote>[Wikipedia](http://en.wikipedia.org/wiki/XMPP)</quote>
+
+# Slick with Reactive Streams Support
+> Slick is a modern database query and access library for Scala. It allows you to work with stored data almost as if you were using Scala collections while at the same time giving you full control over when a database access happens and which data is transferred. You can write your database queries in Scala instead of SQL, thus profiting from the static checking, compile-time safety and compositionality of Scala. Slick features an extensible query compiler which can generate code for different backends. 
+-- <quote>[Slick](http://slick.typesafe.com/)</quote>
 
 - [Slick 3.0 Streaming](http://slick.typesafe.com/doc/3.0.0/dbio.html#streaming)
 
