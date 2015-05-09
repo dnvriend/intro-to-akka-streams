@@ -190,6 +190,18 @@ Source(queue).map(_.message).to(Sink(exchange)).run()
 - [Activator Template - Hello Slick](https://github.com/typesafehub/activator-hello-slick#slick-3.0)
 - [Activator Template - Slick Plain SQL](https://github.com/typesafehub/activator-slick-plainsql)
 
+# MongoDB
+> MongoDB (from “humongous”) is a cross-platform document-oriented database. Classified as a NoSQL database, MongoDB eschews the traditional table-based relational database structure in favor of JSON-like documents with dynamic schemas (MongoDB calls the format BSON), making the integration of data in certain types of applications easier and faster.
+-- <quote>[library/mongo](https://registry.hub.docker.com/u/library/mongo/)</quote>
+
+- [library/mongo](https://registry.hub.docker.com/u/library/mongo/)
+
+## Tepkin
+> Reactive MongoDB Driver for Scala and Java built on top of Akka IO and Akka Streams.
+-- <quote>[Tepkin](https://github.com/fehmicansaglam/tepkin)</quote>
+
+- [GitHub](https://github.com/fehmicansaglam/tepkin)
+
 # Introduction
 ## Blocking
 Blocking typically occurs in a "pull" based system. These systems pull data as required. The problem is that when 

@@ -12,6 +12,11 @@ postgres:
   ports:
     - "5432:5432"  # credentials (docker:docker)
 
+mongo:
+  image: mongo
+  ports:
+    - "27017:27017"
+
 #test:
 #  build: .
 #  links:

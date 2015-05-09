@@ -4,13 +4,17 @@ import akka.actor._
 import akka.event.{Logging, LoggingAdapter}
 import akka.stream.{FlowMaterializer, ActorFlowMaterializer}
 import akka.stream.scaladsl._
+import akka.util.Timeout
 import io.scalac.amqp.{Connection, Direct, Exchange, Queue}
+import net.fehmicansaglam.bson.BsonDocument
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{BeforeAndAfterAll, FlatSpec, Matchers}
 import slick.dbio.DBIO
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcBackend
 import spray.json.DefaultJsonProtocol
+
+import net.fehmicansaglam.tepkin.MongoClient
 
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
@@ -26,6 +30,7 @@ trait TestSpec extends FlatSpec with Matchers with ScalaFutures with BeforeAndAf
   implicit val log: LoggingAdapter = Logging(system, this.getClass)
   implicit val orderJsonFormat = jsonFormat3(Order)
   val dbDomain = DatabaseDomain(system)
+  val mongoDomain = MongoDBDomain(system)
   val rabbit = RabbitConnection(system)
   val orders = dbDomain.orders
   val db = dbDomain.db
@@ -101,12 +106,51 @@ class RabbitConnectionImpl()(implicit val system: ExtendedActorSystem) extends E
   lazy val connection = Connection()
 
   def init: Future[Int] =
-    Source(1 to 3)
+    Source(1 to 1)
       // declare and bind to the orders queue
       .mapAsync(1)(_ => connection.exchangeDeclare(RabbitRegistry.outboundOrderExchange))
       .mapAsync(1)(_ => connection.queueDeclare(RabbitRegistry.inboundOrdersQueue))
       .mapAsync(1)(_ => connection.queueBind(RabbitRegistry.inboundOrdersQueue.name, RabbitRegistry.outboundOrderExchange.name, ""))
       .runFold(0) { case (c, _) => c + 1}
+}
+
+object MongoDBDomain extends ExtensionId[MongoDBDomainImpl] with ExtensionIdProvider {
+  override def createExtension(system: ExtendedActorSystem): MongoDBDomainImpl = new MongoDBDomainImpl()(system)
+
+  override def lookup(): ExtensionId[_ <: Extension] = MongoDBDomain
+}
+
+class MongoDBDomainImpl()(implicit val system: ExtendedActorSystem) extends Extension {
+  implicit val flowMaterializer: FlowMaterializer = ActorFlowMaterializer()
+  implicit val log: LoggingAdapter = Logging(system, this.getClass)
+  implicit val ec = system.dispatcher
+
+  // Connect to a MongoDB node.
+  val mongo = MongoClient("mongodb://boot2docker")
+
+  // Obtain a reference to the "tepkin" database
+  val db = mongo("tepkin")
+
+  // Obtain a reference to the "example" collection in "tepkin" database.
+  val collection = db("example")
+
+  import net.fehmicansaglam.bson.BsonDsl._
+  import net.fehmicansaglam.bson.Implicits._
+  implicit val timeout: Timeout = 5.seconds
+
+  def insert =
+    Source(1 to 1)
+      .map(i => $document("name" := s"fehmi$i"))
+      .mapAsync(1)(collection.insert)
+      .runForeach(println)
+
+  val query: BsonDocument = "name" := "fehmi1"
+
+  def get = collection.find(query)
+    .flatMap { _.runForeach(res => println("Found result: " + res))
+    }.map(_ => println("Done"))
+
+  val rest = insert.flatMap(_ => get)
 }
 
 object RabbitRegistry {
