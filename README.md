@@ -192,6 +192,14 @@ Source(queue).map(_.message).to(Sink(exchange)).run()
 
 - [Apache Kafka Documentation](http://kafka.apache.org/documentation.html)
 
+## ElasticMQ
+> ElasticMQ is a message queue system, offering an actor-based Scala and an SQS-compatible REST (query) interface.
+-- <quote>[ElasticMQ](https://github.com/adamw/elasticmq)</quote>
+
+## Amazon SQS
+> Amazon Simple Queue Service (SQS) is a fast, reliable, scalable, fully managed message queuing service. SQS makes it simple and cost-effective to decouple the components of a cloud application. You can use SQS to transmit any volume of data, at any level of throughput, without losing messages or requiring other services to be always available.
+-- <quote>[Amazon SQS](http://aws.amazon.com/sqs/)</quote>
+
 ## Slick
 - [Activator Template - Hello Slick](https://github.com/typesafehub/activator-hello-slick#slick-3.0)
 - [Activator Template - Slick Plain SQL](https://github.com/typesafehub/activator-slick-plainsql)
@@ -207,6 +215,18 @@ Source(queue).map(_.message).to(Sink(exchange)).run()
 -- <quote>[Tepkin](https://github.com/fehmicansaglam/tepkin)</quote>
 
 - [GitHub](https://github.com/fehmicansaglam/tepkin)
+
+# Apache Cassandra
+> Apache Cassandra is an open source distributed database management system designed to handle large amounts of data across many commodity servers, providing high availability with no single point of failure. Cassandra offers robust support for clusters spanning multiple datacenters, with asynchronous masterless replication allowing low latency operations for all clients.
+-- <quote>[library/cassandra](https://registry.hub.docker.com/u/library/cassandra/)</quote>  
+
+- [library/cassandra](https://registry.hub.docker.com/u/library/cassandra/)
+
+## Akka Persistence Cassandra
+> Replicated Akka Persistence journal and snapshot store backed by Apache Cassandra.
+-- <quote>[Akka Persistence Cassandra](https://github.com/krasserm/akka-persistence-cassandra/)</quote>
+
+- [Akka Persistence Cassandra](https://github.com/krasserm/akka-persistence-cassandra/)
 
 # Introduction
 ## Blocking
