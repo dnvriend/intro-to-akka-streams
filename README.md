@@ -116,11 +116,16 @@ Source(queue).map(_.message).to(Sink(exchange)).run()
 - [RabbitMQ Website](http://www.rabbitmq.com/)
 - [RabbitMQ Simulator](http://tryrabbitmq.com/)
 
+## Concepts
+* *Exchange:* This is the initial destination for all published messages and the entity in charge of applying routing rules for these messages to reach their destinations. Routing rules include the following: direct (point-to-point), topic (publish-subscribe) and fanout (multicast).
+* *Queue:* This is the final destination for messages ready to be consumed. A single message can be copied and can reach multiple queues if the exchange's routing rule says so.
+* *Binding:* This is a virtual connection between an exchange and a queue that enables messages to flow from the former to the latter. A routing key can be associated with a binding in relation to the exchange routing rule.
+
 ## Docker
- - [library/rabbitmq](https://registry.hub.docker.com/u/library/rabbitmq/)
+- [library/rabbitmq](https://registry.hub.docker.com/u/library/rabbitmq/)
  
 ## GitHub
- - [RabbitMQ](https://github.com/docker-library/docs/tree/master/rabbitmq)
+- [RabbitMQ](https://github.com/docker-library/docs/tree/master/rabbitmq)
  
 # Apache ActiveMQ
 > Apache ActiveMQ is an open source message broker written in Java together with a full Java Message Service (JMS) client. It provides "Enterprise Features" which in this case means fostering the communication from more than one client or server. Supported clients include Java via JMS 1.1 as well as several other "cross language" clients. The communication is managed with features such as computer clustering and ability to use any database as a JMS persistence provider besides virtual memory, cache, and journal persistency. -- <quote>[Wikipedia](http://en.wikipedia.org/wiki/Apache_ActiveMQ)</quote>
