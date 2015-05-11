@@ -118,8 +118,48 @@ Source(queue).map(_.message).to(Sink(exchange)).run()
 
 ## Concepts
 * *Exchange:* This is the initial destination for all published messages and the entity in charge of applying routing rules for these messages to reach their destinations. Routing rules include the following: direct (point-to-point), topic (publish-subscribe) and fanout (multicast).
-* *Queue:* This is the final destination for messages ready to be consumed. A single message can be copied and can reach multiple queues if the exchange's routing rule says so.
-* *Binding:* This is a virtual connection between an exchange and a queue that enables messages to flow from the former to the latter. A routing key can be associated with a binding in relation to the exchange routing rule.
+* *Queue:* This is the final destination for messages ready to be consumed. A single message can be copied and can reach multiple queues if the exchange's routing rule says so. RabbitMQ contains a special exchange, the *default exchange* (or *nameless exchange*) with an empty string as its name. When a queue is declared, that new queue will automatically be bound to that default exchange, using the queue name as the *routing key*. This means that you can send messages using an empty string for the exchange name which will use the default exchange, but use the queue name for the routing-key. This way the bind will filter out messages for the queue and only those messages will be sent to the queue.
+* *Binding:* This is a virtual connection between an exchange and a queue that enables messages to flow from the former to the latter. A routing key can be associated with a binding in relation to the exchange routing rule. A binding is a relationship between an exchange and a queue. This can be simply read as: the queue is interested in messages from this exchange. A bind can have a *binding key* set. The meaning of a binding key depends on the exchange type it is configured to. Fanout exchanges will ignore this value.     
+
+## RabbitMQ Messaging Model
+The core idea in the messaging model in RabbitMQ is that the producer never sends any messages directly to a queue. Actually, quite often the producer doesn't even know if a message will be delivered to any queue at all.
+
+Instead, the producer can only send messages to an *exchange*. An exchange is a very simple thing. On one side it receives messages from producers and the other side it pushes them to queues or other exchanges. The exchange must know exactly what to do with a message it receives. Should it be appended to a particular queue? Should it be appended to many queues? Or should it get discarded. The rules for that are defined by the exchange type.
+
+There are a few exchange types available: *direct* (point-to-point), *topic* (publish-subscribe) and *fanout* (multicast). 
+
+# Fanout Exchange
+The *fanout exchange* is very simple. As you can probably guess from the name, it just broadcasts all the messages it receives to all the queues it knows. It does nothing with *routing keys* and only does mindless broadcasting, not very exciting. 
+
+## Direct Exchange
+The *direct exchange* routing algorithm is also very simple - a message goes to the queues whose binding key exactly matches the routing key of the message. Also not very exciting. It is legal to have multiple direct bindings with several different *binding keys*. Eg, having three bindings from an exchange with keys 'red', 'green', 'yellow' will route only messages with the *routing key* 'red', 'green' and 'yellow' to the queue, all other messages will be discarded! It is also possible to route the same message with two bindings with the same binding key to two queues. In that case the direct exchange will act like a broadcaster. 
+
+## Topic Exchange
+Messages sent to a *topic exchange* can't have an arbitrary routing_key - it must be a list of words, delimited by dots. The words can be anything, but usually they specify some features connected to the message. A few valid routing key examples: "stock.usd.nyse", "nyse.vmw", "quick.orange.rabbit". There can be as many words in the routing key as you like, up to the limit of 255 bytes.
+
+The binding key must also be in the same form. The logic behind the topic exchange is similar to a direct one - a message sent with a particular routing key will be delivered to all the queues that are bound with a matching binding key. However there are two important special cases for binding keys:
+
+* * (star) can substitute for exactly one word.
+* # (hash) can substitute for zero or more words.
+
+The topic exchange is powerful and can behave like other exchanges. For example, the fanout exchange does a simple broadcast. The direct exchange can act like a topic exchange when two bindings with the same binding key are configured to two queues, then a message with that routing key will be sent to the two queues. In case of a topic exchange, When a queue is bound with "#" (hash) binding key - it will receive all the messages, regardless of the routing key - like in fanout exchange. So a topic exchange can also behave like a fanout exchange when configured with a single "#" (hash).
+
+For example, a routing key that consists of three words (two dots). The first word in the routing key will describe a celerity, second a colour and third a species: "<celerity>.<colour>.<species>".
+
+We created three bindings: Q1 is bound with binding key "*.orange.*" and Q2 with "*.*.rabbit" and "lazy.#".
+
+These bindings can be summarised as:
+
+* Q1 is interested in all the orange animals.
+* Q2 wants to hear everything about rabbits, and everything about lazy animals.
+
+A message with a routing key set to "quick.orange.rabbit" will be delivered to both queues. Message "lazy.orange.elephant" also will go to both of them. On the other hand "quick.orange.fox" will only go to the first queue, and "lazy.brown.fox" only to the second. "lazy.pink.rabbit" will be delivered to the second queue only once, even though it matches two bindings. "quick.brown.fox" doesn't match any binding so it will be discarded.
+
+What happens if we break our contract and send a message with one or four words, like "orange" or "quick.orange.male.rabbit"? Well, these messages won't match any bindings and will be lost.
+
+On the other hand "lazy.orange.male.rabbit", even though it has four words, will match the last binding and will be delivered to the second queue.
+
+When special characters "*" (star) and "#" (hash) aren't used in bindings, the topic exchange will behave just like a direct one.
 
 ## Docker
 - [library/rabbitmq](https://registry.hub.docker.com/u/library/rabbitmq/)
