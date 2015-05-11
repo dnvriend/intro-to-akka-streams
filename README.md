@@ -14,6 +14,7 @@
 - [Reactive Streams](http://www.reactive-streams.org/)
 
 ## Blogs
+- [Bryan Gilbert - RANDOM.NEXT](http://bryangilbert.com/blog/2015/02/04/akka-reactive-streams/)
 - [Jon Brisbin - The Reactive Streams Project: Tribalism as a Force for Good](http://jbrisbin.com/post/82994020622/the-reactive-streams-project-tribalism-as-a-force)
 - [Adam Warski - Reactive Queue with Akka Reactive Streams](http://www.warski.org/blog/2014/06/reactive-queue-with-akka-reactive-streams/)
 - [Boldradius - Introduction to Akka Streams](http://boldradius.com/blog-post/VS0NpTAAADAACs_E/introduction-to-akka-streams)
