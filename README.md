@@ -221,6 +221,9 @@ The Topic exchange type is useful for directing messages based on multiple categ
 - [Youtube - Reliable Messaging With RabbitMQ](https://www.youtube.com/watch?v=XjuiZM7JzPw)
 - [Youtube - What RabbitMQ Can For You](https://www.youtube.com/watch?v=4lDSwfrfM-I)
 
+## Blogs
+- [Getting Cirrius - Node-Webkit - an example of AngularJS using AMQP.](http://www.gettingcirrius.com/2013/10/node-webkit-example-of-angularjs-using.html)
+
 # Apache Qpid
 > Apache Qpid, an open-source (Apache 2.0 licensed) messaging system, implements the Advanced Message Queuing Protocol. It provides transaction management, queuing, distribution, security, management, clustering, federation and heterogeneous multi-platform support.
 -- <quote>[Wikipedia](http://en.wikipedia.org/wiki/Apache_Qpid)</quote>
