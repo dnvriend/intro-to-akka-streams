@@ -60,6 +60,13 @@ solutions and finally will support an open standard for several systems to opera
 - [Typesafe - What Have The Monads Ever Done For Us with Dick Wall](https://www.youtube.com/watch?v=2IYNPUp751g)
 - [Typesafe - Deep Dive into the Typesafe Reactive Platform - Ecosystem and Tools](https://www.youtube.com/watch?v=3nNerwsqrQI)
 
+## Stream Materialization
+When constructing flows and graphs in Akka Streams think of them as preparing a blueprint, an execution plan. Stream materialization is the process of taking a stream description (the graph) and allocating all the necessary resources it needs in order to run. In the case of Akka Streams this often means starting up Actors which power the processing, but is not restricted to that - it could also mean opening files or socket connections etc. – depending on what the stream needs.
+
+Materialization is triggered at so called "terminal operations". Most notably this includes the various forms of the `run()` and `runWith()` methods defined on flow elements as well as a small number of special syntactic sugars for running with well-known sinks, such as `runForeach(el => )` (being an alias to `runWith(Sink.foreach(el => ))`.
+
+Reusing instances of linear computation stages (`Source`, `Sink`, `Flow`) inside `FlowGraphs` is legal, yet will materialize that stage multiple times. Well not always. An alternative is to pass existing graphs—of any shape—into the factory method that produces a new graph `FlowGraph.closed(topHeadSink, bottomHeadSink) { implicit builder => ...}` The difference between these approaches is that importing using `b.add(...)` ignores the materialized value of the imported graph while importing via the factory method allows its inclusion, and reuses the materialized Actors.
+
 ## Reactive Kafka
 > Reactive Streams wrapper for Apache Kafka. -- <quote>[Reactive Kafka](https://github.com/softwaremill/reactive-kafka)</quote>
 
