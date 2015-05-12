@@ -262,6 +262,9 @@ The Topic exchange type is useful for directing messages based on multiple categ
 ## Books
 - [Protocol specification](https://www.rabbitmq.com/resources/specs/amqp0-9-1.pdf)
 
+## Blogs
+- [InfoQ - Slick 3: Reactive Streams for Asynchronous Database Access in Scala](http://www.infoq.com/news/2015/05/slick3?utm_content=buffer52e7c&utm_medium=social&utm_source=twitter.com&utm_campaign=buffer)
+
 ## Apache Zookeeper
 > Apache ZooKeeper is an effort to develop and maintain an open-source server which enables highly reliable distributed coordination. -- <quote>[Apache Zookeeper](https://zookeeper.apache.org/)</quote>
 
