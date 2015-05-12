@@ -390,3 +390,15 @@ sends a request back through the Flows to the Source. This request notifies the 
 some more data. The Source will then push a set amount of data through the Flows into the Sink. The Sink will then 
 process this data and when it has finished it will send another request for more data. This means that if the Sink gets 
 backed up, then the time between those requests will increase and the necessary back pressure is generated.
+
+# akka-http
+> Akka HTTP is a stream-based, fully asynchronous, low-overhead HTTP/1.1 client/server implemented on top of Akka Streams.
+
+## Documentation
+- [Akka Stream & Akka HTTP](http://doc.akka.io/docs/akka-stream-and-http-experimental/1.0-RC2/scala.html)
+
+## Blogs
+- [SmartJava - Building a REST service in Scala with Akka HTTP, Akka Streams and reactive mongo](http://www.smartjava.org/content/building-rest-service-scala-akka-http-akka-streams-and-reactive-mongo)
+
+## Video
+- [Youtube - Akka HTTP — The What, Why and How](https://www.youtube.com/watch?v=y_slPbktLr0)
