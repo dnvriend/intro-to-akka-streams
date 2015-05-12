@@ -137,7 +137,5 @@ class AkkaStreamsTest extends TestSpec {
       .expectNext(Order(id2, Option("Dennis"), Option("Somewhere")))
       .expectComplete()
   }
-
-  it should "map the order parallel" in {
-  }
 }
+
