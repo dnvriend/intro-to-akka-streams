@@ -1,4 +1,10 @@
 # Introduction to Akka Streams
+This project is for studying purposes only. It contains a lot of information I shamelessly copied from the Internet and will
+never be published apart from GitHub. It contains a lot of try-outs regarding the akka-streams project and serves as a proofing 
+ground for testing out Akka Streams, the reactive-streams standard and the interoperability between all libraries and components that
+will support the akka-streams standard. In my humble opinion the standard will be ground breaking how engineers will design enterprise
+solutions and finally will support an open standard for several systems to operate reactively. 
+
 > Stream processing is a different paradigm to the Actor Model or to Future composition, therefore it may take some 
 > careful study of this subject until you feel familiar with the tools and techniques.
 -- <cite>Akka Streams Documentation</cite>
@@ -116,9 +122,12 @@ Source(queue).map(_.message).to(Sink(exchange)).run()
 - [RabbitMQ Website](http://www.rabbitmq.com/)
 - [RabbitMQ Simulator](http://tryrabbitmq.com/)
 
+## Blogs
+- [LostTechies - RabbitMQ: Exchange Types](https://lostechies.com/derekgreer/2012/03/28/rabbitmq-for-windows-exchange-types/)
+
 ## Concepts
-* *Exchange:* This is the initial destination for all published messages and the entity in charge of applying routing rules for these messages to reach their destinations. Routing rules include the following: direct (point-to-point), topic (publish-subscribe) and fanout (multicast).
-* *Queue:* This is the final destination for messages ready to be consumed. A single message can be copied and can reach multiple queues if the exchange's routing rule says so. RabbitMQ contains a special exchange, the *default exchange* (or *nameless exchange*) with an empty string as its name. When a queue is declared, that new queue will automatically be bound to that default exchange, using the queue name as the *routing key*. This means that you can send messages using an empty string for the exchange name which will use the default exchange, but use the queue name for the routing-key. This way the bind will filter out messages for the queue and only those messages will be sent to the queue.
+* *Exchange:* This is the initial destination for all published messages and the entity in charge of applying routing rules for these messages to reach their destinations. Exchanges control the routing of messages to queues. Each exchange type defines a specific routing algorithm which the server uses to determine which bound queues a published message should be routed to. Routing rules include the following: direct (point-to-point), topic (publish-subscribe) and fanout (multicast). 
+* *Queue:* This is the final destination for messages ready to be consumed. A single message can be copied and can reach multiple queues if the exchange's routing rule says so. RabbitMQ contains a special exchange, the *default exchange* (a.k.a. *nameless exchange*) with an empty string as its name. When a queue is declared, that new queue will automatically be bound to that *default exchange*, using the queue name as the *routing key*. This means that you can send messages using an empty string for the exchange name which will use the default exchange, but use the queue name for the routing-key. This way the bind will filter out messages for the queue and only those messages will be sent to the queue.
 * *Binding:* This is a virtual connection between an exchange and a queue that enables messages to flow from the former to the latter. A routing key can be associated with a binding in relation to the exchange routing rule. A binding is a relationship between an exchange and a queue. This can be simply read as: the queue is interested in messages from this exchange. A bind can have a *binding key* set. The meaning of a binding key depends on the exchange type it is configured to. Fanout exchanges will ignore this value.     
 
 ## RabbitMQ Messaging Model
@@ -131,8 +140,20 @@ There are a few exchange types available: *direct* (point-to-point), *topic* (pu
 # Fanout Exchange
 The *fanout exchange* is very simple. As you can probably guess from the name, it just broadcasts all the messages it receives to all the queues it knows. It does nothing with *routing keys* and only does mindless broadcasting, not very exciting. 
 
+The Fanout exchange type routes messages to all bound queues indiscriminately.  If a routing key is provided, it will simply be ignored.  The following illustrates how the fanout exchange type works:
+
+![Exchange of type 'Fanout'](https://github.com/dnvriend/intro-to-akka-streams/blob/master/img/fanout_exchange.png "Exchange of type 'Fanout'")
+
+When using the fanout exchange type, different queues can be declared to handle messages in different ways.  For instance, a message indicating a customer order has been placed might be received by one queue whose consumers fulfill the order, another whose consumers update a read-only history of orders, and yet another whose consumers record the order for reporting purposes.
+
 ## Direct Exchange
 The *direct exchange* routing algorithm is also very simple - a message goes to the queues whose binding key exactly matches the routing key of the message. Also not very exciting. It is legal to have multiple direct bindings with several different *binding keys*. Eg, having three bindings from an exchange with keys 'red', 'green', 'yellow' will route only messages with the *routing key* 'red', 'green' and 'yellow' to the queue, all other messages will be discarded! It is also possible to route the same message with two bindings with the same binding key to two queues. In that case the direct exchange will act like a broadcaster. 
+
+The Direct exchange type routes messages with a routing key equal to the routing key declared by the binding queue. Messages sent to the exchange with a routing key that has no binding will be dropped and will never reach a queue, ever! The following illustrates how the direct exchange type works:
+
+![Exchange of type 'Direct'](https://github.com/dnvriend/intro-to-akka-streams/blob/master/img/direct_exchange.png "Exchange of type 'Direct'")
+
+The Direct exchange type is useful when you would like to distinguish messages published to the same exchange using a simple string identifier. Every queue is automatically bound to a *default exchange* (a.k.a. *nameless exchange*) using a routing key equal to the queue name. This default exchange is declared as a Direct exchange.
 
 ## Topic Exchange
 Messages sent to a *topic exchange* can't have an arbitrary routing_key - it must be a list of words, delimited by dots. The words can be anything, but usually they specify some features connected to the message. A few valid routing key examples: "stock.usd.nyse", "nyse.vmw", "quick.orange.rabbit". There can be as many words in the routing key as you like, up to the limit of 255 bytes.
@@ -160,6 +181,12 @@ What happens if we break our contract and send a message with one or four words,
 On the other hand "lazy.orange.male.rabbit", even though it has four words, will match the last binding and will be delivered to the second queue.
 
 When special characters "*" (star) and "#" (hash) aren't used in bindings, the topic exchange will behave just like a direct one.
+
+The Topic exchange type routes messages to queues whose routing key matches all, or a portion of a routing key.  With topic exchanges, messages are published with routing keys containing a series of words separated by a dot (e.g. “word1.word2.word3”).  Queues binding to a topic exchange supply a matching pattern for the server to use when routing the message.  Patterns may contain an asterisk (“*”) to match a word in a specific position of the routing key, or a hash (“#”) to match zero or more words.  For example, a message published with a routing key of “honda.civic.navy” would match queues bound with “honda.civic.navy”, “*.civic.*”, “honda.#”, or “#”, but would not match “honda.accord.navy”, “honda.accord.silver”, “*.accord.*”, or “ford.#”.  The following illustrates how the fanout exchange type works:
+
+![Exchange of type 'Topic'](https://github.com/dnvriend/intro-to-akka-streams/blob/master/img/topic_exchange.png "Exchange of type 'Topic'")
+
+The Topic exchange type is useful for directing messages based on multiple categories (e.g. product type and shipping preference), or for routing messages originating from multiple sources (e.g. logs containing an application name and severity level).
 
 ## Docker
 - [library/rabbitmq](https://registry.hub.docker.com/u/library/rabbitmq/)
