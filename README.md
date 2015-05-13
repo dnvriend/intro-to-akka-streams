@@ -69,16 +69,20 @@ Reusing instances of linear computation stages (`Source`, `Sink`, `Flow`) inside
 
 # Akka stream extensions
 > Streamz is a resource combinator library for scalaz-stream. It allows Process instances to consume from and produce to.
+
 - [Martin Krasser - Streamz](https://github.com/krasserm/streamz)
 
 > Develop generic Sources/Flows/Sinks not provided out-of-the-box by Akka-Stream.
+
 - [MfgLabs - Akka Stream Extensions](https://github.com/MfgLabs/akka-stream-extensions)
 
 # Nice projects with Akka Streams
 > A playground of video processing examples in Akka streams and Scala.
+
 - [Josh Suereth - Streamerz](https://github.com/jsuereth/streamerz)
 
 > Sample Play application using Akka actors to stream tweets over websockets.
+
 - [Eric Mittelhammer - Reactive Tweets](https://github.com/ericmittelhammer/reactive-tweets)
 
 ## Reactive Kafka
