@@ -67,6 +67,20 @@ Materialization is triggered at so called "terminal operations". Most notably th
 
 Reusing instances of linear computation stages (`Source`, `Sink`, `Flow`) inside `FlowGraphs` is legal, yet will materialize that stage multiple times. Well not always. An alternative is to pass existing graphs—of any shape—into the factory method that produces a new graph `FlowGraph.closed(topHeadSink, bottomHeadSink) { implicit builder => ...}` The difference between these approaches is that importing using `b.add(...)` ignores the materialized value of the imported graph while importing via the factory method allows its inclusion, and reuses the materialized Actors.
 
+# Akka stream extensions
+> Streamz is a resource combinator library for scalaz-stream. It allows Process instances to consume from and produce to.
+- [Martin Krasser - Streamz](https://github.com/krasserm/streamz)
+
+> Develop generic Sources/Flows/Sinks not provided out-of-the-box by Akka-Stream.
+- [MfgLabs - Akka Stream Extensions](https://github.com/MfgLabs/akka-stream-extensions)
+
+# Nice projects with Akka Streams
+> A playground of video processing examples in Akka streams and Scala.
+- [Josh Suereth - Streamerz](https://github.com/jsuereth/streamerz)
+
+> Sample Play application using Akka actors to stream tweets over websockets.
+- [Eric Mittelhammer - Reactive Tweets](https://github.com/ericmittelhammer/reactive-tweets)
+
 ## Reactive Kafka
 > Reactive Streams wrapper for Apache Kafka. -- <quote>[Reactive Kafka](https://github.com/softwaremill/reactive-kafka)</quote>
 
