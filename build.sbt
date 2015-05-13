@@ -4,6 +4,8 @@ version := "1.0.0"
 
 scalaVersion := "2.11.6"
 
+resolvers += Resolver.bintrayRepo("mfglabs", "maven")
+
 libraryDependencies ++= {
  val akkaVersion    = "2.3.11"
  val streamsVersion = "1.0-RC2"
@@ -15,6 +17,7 @@ libraryDependencies ++= {
   "io.spray"           %%  "spray-json"                       % "1.3.2",
   "com.typesafe.slick" %%  "slick"                            % "3.0.0",
   "com.zaxxer"          %  "HikariCP-java6"                   % "2.3.5",
+  "com.mfglabs"        %% "akka-stream-extensions-postgres"   % "0.7.1",
   "org.postgresql"      %  "postgresql"                       % "9.4-1201-jdbc41",
   "io.scalac"          %%  "reactive-rabbit"                  % "1.0.0",
   "net.fehmicansaglam" %%  "tepkin"                           % "0.4",
