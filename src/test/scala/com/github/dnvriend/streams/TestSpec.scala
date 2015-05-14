@@ -24,11 +24,26 @@ case class Order(orderId: String, name: Option[String], address: Option[String])
 
 trait TestSpec extends FlatSpec with Matchers with ScalaFutures with BeforeAndAfterAll with DefaultJsonProtocol {
   implicit val system: ActorSystem = ActorSystem("TestSystem")
-  implicit val pc: PatienceConfig = PatienceConfig(timeout = 50.seconds)
   implicit val ec: ExecutionContext = system.dispatcher
   implicit val flowMaterializer: FlowMaterializer = ActorFlowMaterializer()
   implicit val log: LoggingAdapter = Logging(system, this.getClass)
   implicit val orderJsonFormat = jsonFormat3(Order)
+  implicit val pc: PatienceConfig = PatienceConfig(timeout = 50.seconds)
+
+  implicit class FutureToTry[T](f: Future[T]) {
+    def toTry: Try[T] = Try(f.futureValue)
+  }
+
+  override protected def afterAll(): Unit = {
+    system.shutdown()
+    system.awaitTermination()
+  }
+}
+
+trait Storage extends ScalaFutures {
+  implicit def system: ActorSystem
+  implicit def ec: ExecutionContext
+  implicit def pc: PatienceConfig
   val dbDomain = DatabaseDomain(system)
   val mongoDomain = MongoDBDomain(system)
   val rabbit = RabbitConnection(system)
@@ -36,19 +51,9 @@ trait TestSpec extends FlatSpec with Matchers with ScalaFutures with BeforeAndAf
   val db = dbDomain.db
   val connection = rabbit.connection
 
-  implicit class FutureToTry[T](f: Future[T]) {
-    def toTry: Try[T] = Try(f.futureValue)
-  }
-
   rabbit.init.flatMap { _ =>
     dbDomain.init
   }.futureValue
-
-
-  override protected def afterAll(): Unit = {
-    system.shutdown()
-    system.awaitTermination()
-  }
 }
 
 class Orders(tag: Tag) extends Table[Order](tag, "orders") {

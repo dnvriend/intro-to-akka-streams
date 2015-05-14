@@ -7,7 +7,7 @@ import slick.backend.DatabasePublisher
 import slick.driver.PostgresDriver.api._
 import spray.json._
 
-class SlickStreamTest extends TestSpec {
+class SlickStreamTest extends TestSpec with Storage {
   "slick" should "read all orders but output only the name to sysout" in {
     // from a Slick result
     val orderNameQuery = for (o <- orders) yield o.name
