@@ -41,6 +41,7 @@ solutions and finally will support an open standard for several systems to opera
 - [Akka Streams Activator Template](http://www.typesafe.com/activator/template/akka-stream-scala)
 
 ## Video
+- [Youtube - Dr. Roland Kuhn - Akka Stream and Akka HTTP reactive web toolkit](https://www.parleys.com/tutorial/akka-http-reactive-web-toolkit)
 - [Youtube - Introducing Reactive Streams](https://www.youtube.com/watch?v=khmVMvlP_QA)
 - [Youtube - Spray and Akka HTTP](https://www.youtube.com/watch?v=o5PUDI4qi10)
 - [Youtube - Reactive Stream Processing with Akka Streams](https://www.youtube.com/watch?v=XCP6zg46utU)
