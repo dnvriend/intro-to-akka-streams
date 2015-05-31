@@ -1,9 +1,6 @@
 package com.github.dnvriend.streams
 
-import akka.event.Logging
-import akka.stream.{Shape, OperationAttributes}
 import akka.stream.scaladsl._
-import akka.stream.testkit.scaladsl._
 
 import scala.concurrent.Future
 
@@ -18,44 +15,23 @@ class FlowTest extends TestSpec {
   val resultSink: Sink[Int, Future[Int]] = Sink.head[Int]
   val in: Source[Int, Unit] = Source(1 to 1)
 
-  def debug(name: String, in: Any, out: Any): Unit = log.info(s"[$name] ($in) -> ($out)")
-
   "SimpleFlow" should "receive single scalar number" in {
-    val g = FlowGraph.closed(resultSink) { implicit builder: FlowGraph.Builder[Future[Int]] => out =>
+    val g = FlowGraph.closed(resultSink) { implicit builder: FlowGraph.Builder[Future[Int]] =>
+      out =>
       import FlowGraph.Implicits._
       val bcast = builder.add(Broadcast[Int](2))
       val merge = builder.add(Merge[Int](2))
 
-      val f1 = Flow[Int]
-        .map { in =>
-          val out = in + 10
-          debug("f1", in, out)
-          out
-        }
-      val f2 = Flow[Int]
-        .map { in =>
-        val out = in + 10
-        debug("f2", in, out)
-        out
-      }
-      val f3 = Flow[Int]
-        .map { in =>
-        val out = in + 10
-        debug("f3", in, out)
-        out
-      }
-      val f4 = Flow[Int]
-        .map { in =>
-        val out = in + 10
-        debug("f4", in, out)
-        out
-      }
+      val f1 = Flow[Int].map( _ + 10).log("f1")
+      val f2 = Flow[Int].map( _ + 20).log("f2")
+      val f3 = Flow[Int].map( _ + 30).log("f3")
+      val f4 = Flow[Int].map( _ + 40).log("f4")
 
       in ~> f1 ~> bcast ~> f2 ~> merge ~> f3 ~> out
       bcast ~> f4 ~> merge
     }
 
-    g.run().futureValue shouldBe 31
+    g.run().futureValue shouldBe 61
   }
 
   it should "consume all messages" in {
@@ -67,30 +43,10 @@ class FlowTest extends TestSpec {
       val bcast = builder.add(Broadcast[Int](2))
       val merge = builder.add(Merge[Int](2))
 
-      val f1 = Flow[Int]
-        .map { in =>
-        val out = in + 10
-        debug("f1", in, out)
-        out
-      }
-      val f2 = Flow[Int]
-        .map { in =>
-        val out = in + 10
-        debug("f2", in, out)
-        out
-      }
-      val f3 = Flow[Int]
-        .map { in =>
-        val out = in + 10
-        debug("f3", in, out)
-        out
-      }
-      val f4 = Flow[Int]
-        .map { in =>
-        val out = in + 10
-        debug("f4", in, out)
-        out
-      }
+      val f1 = Flow[Int].map( _ + 10).log("f1")
+      val f2 = Flow[Int].map( _ + 20).log("f2")
+      val f3 = Flow[Int].map( _ + 30).log("f3")
+      val f4 = Flow[Int].map( _ + 40).log("f4")
 
       in ~> f1 ~> bcast ~> f2 ~> merge ~> f3 ~> ignoreSink
       bcast ~> f4 ~> merge

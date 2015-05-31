@@ -74,9 +74,9 @@ Reusing instances of linear computation stages (`Source`, `Sink`, `Flow`) inside
 
 - [Martin Krasser - Streamz](https://github.com/krasserm/streamz)
 
-> Develop generic Sources/Flows/Sinks not provided out-of-the-box by Akka-Stream.
+> Develop generic Sources/Flows/Sinks not provided out-of-the-box by Akka-Stream. It supports Postgres, Elasticsearch, Shapeless and AWS.
 
-- [MfgLabs - Akka Stream Extensions](https://github.com/MfgLabs/akka-stream-extensions)
+- [MfgLabs - Akka Stream Extensions](http://mfglabs.github.io/akka-stream-extensions/)
 
 # Nice projects with Akka Streams
 > A playground of video processing examples in Akka streams and Scala.

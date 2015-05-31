@@ -25,14 +25,14 @@ class FlowErrorTest extends TestSpec {
   it should "resume with no result for the failed future" in {
     val t = new RuntimeException("Test")
     Source(List(1, 2, 3))
-      .map { x => println("Before: " + x); x }
+      .log("before")
       .mapAsync(3){ x =>
       Future {
         if (x == 2) throw t else x
       }
     }
       .withAttributes(supervisionStrategy(resumingDecider))
-      .map { x => println("After: " + x); x }
+      .log("after")
       .runWith(TestSink.probe[Int])
       .request(4)
       /* it will drop the failed future so no marble there
@@ -48,7 +48,7 @@ class FlowErrorTest extends TestSpec {
   it should "resume and return results for all values" in {
     val t = new RuntimeException("Test")
     Source(List(1, 2, 3))
-      .map { x => println("Before: " + x); x }
+      .log("before")
       .mapAsync(1){ x =>
         Future {
           if (x == 2) throw t else Try(x)
@@ -57,7 +57,7 @@ class FlowErrorTest extends TestSpec {
         }
       }
 //      .withAttributes(supervisionStrategy(resumingDecider))
-      .map { x => println("After: " + x); x }
+      .log("after")
       .runWith(TestSink.probe[Try[Int]])
       .request(4)
       /* The future will return a Future[Try[T]], which can be recovered

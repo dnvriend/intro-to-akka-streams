@@ -12,8 +12,8 @@ class SlickStreamTest extends TestSpec with Storage {
     // from a Slick result
     val orderNameQuery = for (o <- orders) yield o.name
     val orderNameActions = orderNameQuery.result
-    val orderNameProducer: DatabasePublisher[String] = db.stream(orderNameActions)
-    val orderNameSource: Source[String, Unit] = Source(orderNameProducer)
+    val orderNameProducer: DatabasePublisher[Option[String]] = db.stream(orderNameActions)
+    val orderNameSource: Source[Option[String], Unit] = Source(orderNameProducer)
     orderNameSource
       .runForeach(println)
       .toTry should be a 'success
@@ -33,7 +33,6 @@ class SlickStreamTest extends TestSpec with Storage {
     // flows
     val mapToJsonFlow = Flow[Order].map { order => order.toJson.compactPrint }
     val mapToRoutedFlow = Flow[String].map { orderJson => Routed(routingKey = "", Message(body = ByteString(orderJson))) }
-    val debugFlow = Flow[Order].map { order => println("sending to rabbitmq: " + order); order }
     val delayFlow = Flow[Order].map { order => Thread.sleep(10); order }
 
     // source
