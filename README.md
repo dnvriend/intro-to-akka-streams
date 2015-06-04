@@ -20,11 +20,13 @@ solutions and finally will support an open standard for several systems to opera
 - [Reactive Streams](http://www.reactive-streams.org/)
 
 ## Blogs
+- [Reactive Streams 1.0.0 interview Viktor Klang](http://scalatimes.us2.list-manage2.com/track/click?u=ba834c562d82d9aba5eaf90ba&id=f0c61fc8e5&e=9e9b2b2bbe)
 - [Bryan Gilbert - RANDOM.NEXT](http://bryangilbert.com/blog/2015/02/04/akka-reactive-streams/)
 - [Jon Brisbin - The Reactive Streams Project: Tribalism as a Force for Good](http://jbrisbin.com/post/82994020622/the-reactive-streams-project-tribalism-as-a-force)
 - [Adam Warski - Reactive Queue with Akka Reactive Streams](http://www.warski.org/blog/2014/06/reactive-queue-with-akka-reactive-streams/)
 - [Boldradius - Introduction to Akka Streams](http://boldradius.com/blog-post/VS0NpTAAADAACs_E/introduction-to-akka-streams)
 - [Scraping Reddit with Akka Streams 1.0](https://github.com/pkinsky/akka-streams-example)
+- [Backpressure in action with websockets and akka-streams](http://www.smartjava.org/content/backpressure-action-websockets-and-akka-streams)
 
 ## Testing
 - [Testing Streams](http://doc.akka.io/docs/akka-stream-and-http-experimental/1.0-RC1/scala/stream-testkit.html)
@@ -36,6 +38,8 @@ solutions and finally will support an open standard for several systems to opera
 ## Github
 - [ScalaConsultants Team Blog - Akka Streams and RabbitMQ](http://blog.scalac.io/2014/06/23/akka-streams-and-rabbitmq.html)
 - [Reactive RabbitMq Activator Template](https://github.com/jczuchnowski/rabbitmq-akka-stream#master)
+- [Iterators - Reactive Microservices](https://github.com/theiterators/reactive-microservices)
+- [Iterators - Akka HTTP microservice example](https://github.com/theiterators/akka-http-microservice)
 
 ## Activator Template
 - [Akka Streams Activator Template](http://www.typesafe.com/activator/template/akka-stream-scala)
