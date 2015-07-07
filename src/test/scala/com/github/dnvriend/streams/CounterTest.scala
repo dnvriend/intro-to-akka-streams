@@ -1,6 +1,6 @@
 package com.github.dnvriend.streams
 
-import akka.stream.OperationAttributes
+import akka.stream.Attributes
 import akka.stream.scaladsl.{Flow, Source}
 
 class CounterTest extends TestSpec {
@@ -8,7 +8,7 @@ class CounterTest extends TestSpec {
   /**
    * A single inputBuffer flow
    */
-  val single = Flow[Int].withAttributes(OperationAttributes.inputBuffer(initial = 1, max = 1))
+  val single = Flow[Int].withAttributes(Attributes.inputBuffer(initial = 1, max = 1))
 
   def debug[T] = Flow[T].map { x => println(x); x }
 

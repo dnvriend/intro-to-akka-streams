@@ -1,11 +1,11 @@
 package com.github.dnvriend.streams
 
 import akka.actor.{ActorLogging, Props}
+import akka.stream.{ActorMaterializerSettings, ActorMaterializer, Supervision}
 import akka.stream.actor.ActorPublisherMessage._
 import akka.stream.actor.ActorSubscriberMessage.{OnComplete, OnError, OnNext}
 import akka.stream.actor.{ActorPublisher, ActorSubscriber, MaxInFlightRequestStrategy}
 import akka.stream.scaladsl._
-import akka.stream.{ActorFlowMaterializer, ActorFlowMaterializerSettings, Supervision}
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
@@ -188,7 +188,7 @@ class AkkaPublisherSubscriberTest extends TestSpec {
     val decider: Supervision.Decider = {
       case _ => Supervision.Restart
     }
-    implicit val mat = ActorFlowMaterializer(ActorFlowMaterializerSettings(system).withSupervisionStrategy(decider))
+    implicit val mat = ActorMaterializer(ActorMaterializerSettings(system).withSupervisionStrategy(decider))
     Await.ready(graph(printlnSink, x => if(x == 10) throw new RuntimeException("10 reached")).run(), 1.minute)
   }
 }

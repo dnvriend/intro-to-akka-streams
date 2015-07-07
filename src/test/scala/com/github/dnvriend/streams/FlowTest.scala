@@ -11,7 +11,7 @@ class FlowTest extends TestSpec {
    *               | -- f4 -- /
    */
 
-  val ignoreSink: Sink[Int, Unit] = Sink.ignore
+  val ignoreSink: Sink[Int, Future[Unit]] = Sink.ignore
   val resultSink: Sink[Int, Future[Int]] = Sink.head[Int]
   val in: Source[Int, Unit] = Source(1 to 1)
 

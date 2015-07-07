@@ -1,10 +1,10 @@
 package com.github.dnvriend.streams
 
-import akka.actor.{Extension, ExtendedActorSystem, ExtensionIdProvider, ExtensionId}
+import akka.actor.{ExtendedActorSystem, Extension, ExtensionId, ExtensionIdProvider}
 import akka.event.{Logging, LoggingAdapter}
 import akka.stream.scaladsl.Source
-import akka.stream.{ActorFlowMaterializer, FlowMaterializer}
-import io.scalac.amqp.{Queue, Direct, Exchange, Connection}
+import akka.stream.{ActorMaterializer, Materializer}
+import io.scalac.amqp.{Connection, Direct, Exchange, Queue}
 
 import scala.concurrent.Future
 
@@ -15,7 +15,7 @@ object RabbitConnection extends ExtensionId[RabbitConnectionImpl] with Extension
 }
 
 class RabbitConnectionImpl()(implicit val system: ExtendedActorSystem) extends Extension {
-  implicit val flowMaterializer: FlowMaterializer = ActorFlowMaterializer()
+  implicit val mat: Materializer = ActorMaterializer()
   implicit val log: LoggingAdapter = Logging(system, this.getClass)
   implicit val ec = system.dispatcher
 

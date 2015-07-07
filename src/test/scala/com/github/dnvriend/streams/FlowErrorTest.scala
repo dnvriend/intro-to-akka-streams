@@ -1,6 +1,6 @@
 package com.github.dnvriend.streams
 
-import akka.stream.ActorOperationAttributes.supervisionStrategy
+import akka.stream.ActorAttributes.supervisionStrategy
 import akka.stream.Supervision.resumingDecider
 import akka.stream.scaladsl._
 import akka.stream.testkit.scaladsl._

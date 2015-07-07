@@ -1,10 +1,6 @@
 package com.github.dnvriend.streams
 
 import akka.stream.scaladsl._
-import akka.util.ByteString
-import io.scalac.amqp.{Message, Routed}
-import slick.backend.DatabasePublisher
-import spray.json._
 
 import scala.concurrent.Future
 
@@ -35,7 +31,7 @@ class RunnableFlowTest extends TestSpec {
 
     // connect the Source to the Sink, obtaining a RunnableFlow, which is
     // a Model of the processing pipeline
-    val runnable: RunnableFlow[Future[Int]] = source.toMat(sink)(Keep.right)
+    val runnable: RunnableGraph[Future[Int]] = source.toMat(sink)(Keep.right)
 
     // materialize the flow (convert the RunnableFlow model to a runtime representation
     // using the ActorFlowMaterializer which creates a network of actors that will give the
@@ -101,7 +97,7 @@ class RunnableFlowTest extends TestSpec {
     val s2: Sink[Int, Future[Int]] = Sink.head[Int]
 
     // A Sink that consumes a stream without doing anything with the elements
-    val s3: Sink[Any, Unit] = Sink.ignore
+    val s3: Sink[Any, Future[Unit]] = Sink.ignore
 
     // A Sink that executes a side-effecting call for every element of the stream
     val s4: Sink[String, Future[Unit]] = Sink.foreach[String](println(_))
@@ -115,7 +111,7 @@ class RunnableFlowTest extends TestSpec {
   "Streams" should "be wired up from different parts" in {
     // Explicitly creating and wiring up a Source, Sink and Flow
     // the Sink is of type Sink[Int, Future[Unit]]
-    val runnable: RunnableFlow[Unit] =
+    val runnable: RunnableGraph[Unit] =
       Source(1 to 6)
         .via(
           Flow[Int].map(_ * 2)
@@ -126,13 +122,13 @@ class RunnableFlowTest extends TestSpec {
 
     // Starting from a Source
     val source = Source(1 to 6).map(_ * 2)
-    val runnable2: RunnableFlow[Unit] =
+    val runnable2: RunnableGraph[Unit] =
       source
         .to(Sink.foreach(println(_)))
 
     // Starting from a Sink
     val sink: Sink[Int, Unit] = Flow[Int].map(_ * 2).to(Sink.foreach(println(_)))
-    val runnable3: RunnableFlow[Unit] =
+    val runnable3: RunnableGraph[Unit] =
       Source(1 to 6)
         .to(sink)
   }

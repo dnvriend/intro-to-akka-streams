@@ -3,7 +3,7 @@ package com.github.dnvriend.streams
 import akka.actor._
 import akka.event.{Logging, LoggingAdapter}
 import akka.stream.scaladsl._
-import akka.stream.{ActorFlowMaterializer, FlowMaterializer}
+import akka.stream.{ActorMaterializer, Materializer}
 import slick.dbio.DBIO
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcBackend
@@ -26,7 +26,7 @@ object DatabaseDomain extends ExtensionId[DatabaseDomainImpl] with ExtensionIdPr
 }
 
 class DatabaseDomainImpl()(implicit val system: ExtendedActorSystem) extends JdbcBackend with Extension {
-  implicit val flowMaterializer: FlowMaterializer = ActorFlowMaterializer()
+  implicit val mat: Materializer = ActorMaterializer()
   implicit val log: LoggingAdapter = Logging(system, this.getClass)
   implicit val ec = system.dispatcher
 
