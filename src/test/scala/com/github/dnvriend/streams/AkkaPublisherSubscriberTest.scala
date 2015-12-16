@@ -1,14 +1,30 @@
+/*
+ * Copyright 2015 Dennis Vriend
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.github.dnvriend.streams
 
-import akka.actor.{ActorLogging, Props}
-import akka.stream.{ActorMaterializerSettings, ActorMaterializer, Supervision}
+import akka.actor.{ ActorLogging, Props }
+import akka.stream.{ ActorMaterializerSettings, ActorMaterializer, Supervision }
 import akka.stream.actor.ActorPublisherMessage._
-import akka.stream.actor.ActorSubscriberMessage.{OnComplete, OnError, OnNext}
-import akka.stream.actor.{ActorPublisher, ActorSubscriber, MaxInFlightRequestStrategy}
+import akka.stream.actor.ActorSubscriberMessage.{ OnComplete, OnError, OnNext }
+import akka.stream.actor.{ ActorPublisher, ActorSubscriber, MaxInFlightRequestStrategy }
 import akka.stream.scaladsl._
 
 import scala.concurrent.duration._
-import scala.concurrent.{Await, Future}
+import scala.concurrent.{ Await, Future }
 
 /**
  * A simple stream publisher that generates numbers every time a `Request` for demand has been received.
@@ -28,40 +44,41 @@ class NumberPublisher(delay: Long = 50) extends ActorPublisher[Long] with ActorL
 
   override def receive = {
     // a subscriber will send the demand message.
-    case Request(demand) if totalDemand > 0 && isActive =>
+    case Request(demand) if totalDemand > 0 && isActive ⇒
       log.info("[Request]: demand: {}", demand)
       if (isActive && totalDemand > 0 && counter <= stopAt)
         try {
-          (1L to totalDemand).foreach { _ =>
+          (1L to totalDemand).foreach { _ ⇒
             log.info("Foreach: {}", counter)
             Thread.sleep(delay) // to slow logging down
             onNext(counter)
             counter += 1
           }
         } catch {
-          case t: Throwable =>
+          case t: Throwable ⇒
             // You can terminate the stream with failure by calling `onError`.
             // After that you are not allowed to call `onNext`, `onError` and `onComplete`.
             log.error(t, "")
             onError(t)
             stop()
-        } else {
+        }
+      else {
         log.info(s"$stopAt reached, stopping")
         onComplete()
       }
 
-    case Cancel =>
+    case Cancel ⇒
       log.info("[Cancel]")
       // When the stream subscriber cancels the subscription the ActorPublisher.Cancel message
       // is delivered to this actor. After that subsequent calls to `onNext` will be ignored.
       onComplete()
 
-    case SubscriptionTimeoutExceeded =>
+    case SubscriptionTimeoutExceeded ⇒
       log.info("[SubscriptionTimeoutExceeded]")
       onComplete()
       stop()
 
-    case m => log.info("[!!!DROPPING!!!]: {}", m)
+    case m ⇒ log.info("[!!!DROPPING!!!]: {}", m)
   }
 
   def stop(): Unit = {
@@ -93,7 +110,7 @@ class NumberPublisher(delay: Long = 50) extends ActorPublisher[Long] with ActorL
  *
  *  It can also receive other, non-stream messages, in the same way as any actor.
  */
-class NumberSubscriber(maxInFlight: Int = 1, f: Long => Unit) extends ActorSubscriber with ActorLogging {
+class NumberSubscriber(maxInFlight: Int = 1, f: Long ⇒ Unit) extends ActorSubscriber with ActorLogging {
   var inFlight = 0
 
   // requestStrategy controls stream back pressure. After each incoming message the ActorSubscriber
@@ -105,26 +122,26 @@ class NumberSubscriber(maxInFlight: Int = 1, f: Long => Unit) extends ActorSubsc
     // the method `inFlightInternally`. It will request elements in minimum batches of the
     // defined `batchSize`.
     new MaxInFlightRequestStrategy(max = maxInFlight) {
-    override def inFlightInternally = inFlight
-  }
+      override def inFlightInternally = inFlight
+    }
 
   override def receive = {
-    case OnNext(msg: Long) =>
+    case OnNext(msg: Long) ⇒
       inFlight += 1
       Thread.sleep(100) // do some heavy computing :)
       log.info("[OnNext]: {}, inflight: {}", msg, inFlight)
       f(msg)
       inFlight -= 1
 
-    case OnComplete =>
+    case OnComplete ⇒
       log.info("[OnComplete]")
       stop()
 
-    case OnError =>
+    case OnError ⇒
       log.info("[OnError]")
       stop()
 
-    case m => log.info("[!!!DROPPING!!!]: {}", m)
+    case m ⇒ log.info("[!!!DROPPING!!!]: {}", m)
   }
   def stop(): Unit = {
     // If the actor is stopped the stream will be completed,
@@ -156,8 +173,8 @@ class AkkaPublisherSubscriberTest extends TestSpec {
    * @param sink
    * @return
    */
-  def graph(sink: Sink[Long, Future[Unit]], f: Long => Unit) = FlowGraph.closed(sink) { implicit b =>
-    sink =>
+  def graph(sink: Sink[Long, Future[Unit]], f: Long ⇒ Unit) = FlowGraph.closed(sink) { implicit b ⇒
+    sink ⇒
       import FlowGraph.Implicits._
       val src = Source.actorPublisher(Props(new NumberPublisher()))
       val numberSink = Sink.actorSubscriber(Props(new NumberSubscriber(1, f)))
@@ -175,20 +192,20 @@ class AkkaPublisherSubscriberTest extends TestSpec {
   }
 
   it should "use a subscriber to supply backpressure" in {
-    Await.ready(graph(printlnSink, x => ()).run(), 1.minute)
+    Await.ready(graph(printlnSink, x ⇒ ()).run(), 1.minute)
   }
 
   it should "throws an exception when count == 10, println continues" in {
     // note, the actor crashes and will be stopped, but the println sink will continue
-    Await.ready(graph(printlnSink, x => if(x == 10) throw new RuntimeException("10 reached")).run(), 1.minute)
+    Await.ready(graph(printlnSink, x ⇒ if (x == 10) throw new RuntimeException("10 reached")).run(), 1.minute)
   }
 
   // should use actor supervision for this.. TBC
   ignore should "throw an exception but the actor will recover, the message will be dropped though" in {
     val decider: Supervision.Decider = {
-      case _ => Supervision.Restart
+      case _ ⇒ Supervision.Restart
     }
     implicit val mat = ActorMaterializer(ActorMaterializerSettings(system).withSupervisionStrategy(decider))
-    Await.ready(graph(printlnSink, x => if(x == 10) throw new RuntimeException("10 reached")).run(), 1.minute)
+    Await.ready(graph(printlnSink, x ⇒ if (x == 10) throw new RuntimeException("10 reached")).run(), 1.minute)
   }
 }

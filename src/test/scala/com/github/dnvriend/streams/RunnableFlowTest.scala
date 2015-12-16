@@ -1,3 +1,19 @@
+/*
+ * Copyright 2015 Dennis Vriend
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.github.dnvriend.streams
 
 import akka.stream.scaladsl._
@@ -6,24 +22,24 @@ import scala.concurrent.Future
 
 class RunnableFlowTest extends TestSpec {
   /**
-
-  It is possible to attach a Flow to a Source resulting in a composite source,
-  and it is also possible to prepend a Flow to a Sink to get a new sink.
-
-  After a stream is properly terminated by having both a source and a sink, it will be
-  represented by the RunnableFlow type, indicating that it is ready to be executed.
-
-  It is important to remember that even after constructing the RunnableFlow by connecting
-  all the source, sink and different processing stages, no data will flow through it until
-  it is 'materialized'.
-
-  Materialization is the process of allocating all resources needed to run the computation
-  described by a Flow (in Akka Streams this will often involve starting up Actors).
-
-  Thanks to Flows being simply a description of the processing pipeline they are immutable, thread-safe,
-  and freely shareable, which means that it is for example safe to share and send them between actors,
-  to have one actor prepare the work, and then have it be materialized at some completely different place in the code.
-  */
+   *
+   * It is possible to attach a Flow to a Source resulting in a composite source,
+   * and it is also possible to prepend a Flow to a Sink to get a new sink.
+   *
+   * After a stream is properly terminated by having both a source and a sink, it will be
+   * represented by the RunnableFlow type, indicating that it is ready to be executed.
+   *
+   * It is important to remember that even after constructing the RunnableFlow by connecting
+   * all the source, sink and different processing stages, no data will flow through it until
+   * it is 'materialized'.
+   *
+   * Materialization is the process of allocating all resources needed to run the computation
+   * described by a Flow (in Akka Streams this will often involve starting up Actors).
+   *
+   * Thanks to Flows being simply a description of the processing pipeline they are immutable, thread-safe,
+   * and freely shareable, which means that it is for example safe to share and send them between actors,
+   * to have one actor prepare the work, and then have it be materialized at some completely different place in the code.
+   */
 
   "RunnableFlow" should "be defined" in {
     val source: Source[Int, Unit] = Source(1 to 10)
@@ -63,15 +79,15 @@ class RunnableFlowTest extends TestSpec {
    * For this reason there is a convenience method called runWith() available for Sink, Source or Flow requiring,
    * respectively, a supplied Source (in order to run a Sink), a Sink (in order to run a Source) or both a Source
    * and a Sink (in order to run a Flow, since it has neither attached yet).
-  */
+   */
 
   /**
    * Defining sources, sinks and flows
-
-     The objects Source and Sink define various ways to create sources and sinks of elements.
-
-     The following examples show some of the most useful constructs (refer to the API documentation for more details):
-  */
+   *
+   * The objects Source and Sink define various ways to create sources and sinks of elements.
+   *
+   * The following examples show some of the most useful constructs (refer to the API documentation for more details):
+   */
 
   "Sources" should "be created" in {
     // Create a source from an Iterable

@@ -1,3 +1,19 @@
+/*
+ * Copyright 2015 Dennis Vriend
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.github.dnvriend.streams
 
 import java.util.UUID
@@ -5,28 +21,28 @@ import java.util.UUID
 import akka.stream.scaladsl._
 import akka.stream.testkit.scaladsl._
 import scala.collection.immutable
-import scala.concurrent.{Promise, Future}
+import scala.concurrent.{ Promise, Future }
 
 class AkkaStreamsTest extends TestSpec {
   /**
    * The Source, it is a generator for 100 input customers with random first and random last name
    */
-  lazy val inputCustomersSource: Source[InputCustomer, Unit] = Source((1 to 100).map(_ => InputCustomer.random()))
+  lazy val inputCustomersSource: Source[InputCustomer, Unit] = Source((1 to 100).map(_ ⇒ InputCustomer.random()))
 
   /**
    * The flow, it is a transformer from InputCustomer to OutputCustomer
    */
-  lazy val normalizeFlow = Flow[InputCustomer].mapConcat { (inputCustomer: InputCustomer) =>
+  lazy val normalizeFlow = Flow[InputCustomer].mapConcat { (inputCustomer: InputCustomer) ⇒
     inputCustomer.name.split(" ").toList match {
-      case firstName :: lastName :: Nil => immutable.Seq(OutputCustomer(firstName, lastName))
-      case _ => immutable.Seq[OutputCustomer]()
+      case firstName :: lastName :: Nil ⇒ immutable.Seq(OutputCustomer(firstName, lastName))
+      case _                            ⇒ immutable.Seq[OutputCustomer]()
     }
   }
 
   /**
    * The sink: it logs all OutputCustomers using the logger
    */
-  lazy val writeCustomersSink = Sink.foreach[OutputCustomer] { (outputCustomer: OutputCustomer) =>
+  lazy val writeCustomersSink = Sink.foreach[OutputCustomer] { (outputCustomer: OutputCustomer) ⇒
     log.info("Customer: {}", outputCustomer)
   }
 
@@ -37,7 +53,7 @@ class AkkaStreamsTest extends TestSpec {
 
   it should "process 100 customers" in {
     var counter = 0
-    val counterSink = Sink.foreach[OutputCustomer] { _ =>
+    val counterSink = Sink.foreach[OutputCustomer] { _ ⇒
       counter += 1
     }
     inputCustomersSource.via(normalizeFlow).runWith(counterSink).toTry should be a 'success
@@ -50,8 +66,8 @@ class AkkaStreamsTest extends TestSpec {
       .runWith(TestSink.probe[OutputCustomer])
       .request(1)
       .expectNext() match {
-        case OutputCustomer(_, _) =>
-        case u => fail("Unexpected: " + u)
+        case OutputCustomer(_, _) ⇒
+        case u                    ⇒ fail("Unexpected: " + u)
       }
   }
 
@@ -111,8 +127,8 @@ class AkkaStreamsTest extends TestSpec {
     def address: Future[String] = Promise.successful("Somewhere").future
 
     Source(List(Order(id1, None, None), Order(id2, None, None)))
-      .mapAsync(1) { order => name.map(name => order.copy(name = Option(name))) }
-      .mapAsync(1) { order => address.map(address => order.copy(address = Option(address))) }
+      .mapAsync(1) { order ⇒ name.map(name ⇒ order.copy(name = Option(name))) }
+      .mapAsync(1) { order ⇒ address.map(address ⇒ order.copy(address = Option(address))) }
       .runWith(TestSink.probe[Order])
       .request(3)
       .expectNext(Order(id1, Option("Dennis"), Option("Somewhere")))
@@ -120,8 +136,8 @@ class AkkaStreamsTest extends TestSpec {
       .expectComplete()
   }
 
-  val nameFlow = Flow[Order].map { order => order.copy(name = Option("Dennis")) }
-  val addressFlow = Flow[Order].map { order => order.copy(address = Option("Somewhere")) }
+  val nameFlow = Flow[Order].map { order ⇒ order.copy(name = Option("Dennis")) }
+  val addressFlow = Flow[Order].map { order ⇒ order.copy(address = Option("Somewhere")) }
   val orderSource = Source(List(Order(id1, None, None), Order(id2, None, None)))
   val testSink = TestSink.probe[Order]
   val bcast = Broadcast[Order](2)
@@ -138,4 +154,3 @@ class AkkaStreamsTest extends TestSpec {
       .expectComplete()
   }
 }
-

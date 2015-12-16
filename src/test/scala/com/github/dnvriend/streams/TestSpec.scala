@@ -1,14 +1,30 @@
+/*
+ * Copyright 2015 Dennis Vriend
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.github.dnvriend.streams
 
 import akka.actor._
-import akka.event.{Logging, LoggingAdapter}
-import akka.stream.{ActorMaterializer, Materializer}
+import akka.event.{ Logging, LoggingAdapter }
+import akka.stream.{ ActorMaterializer, Materializer }
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{BeforeAndAfterAll, FlatSpec, Matchers}
+import org.scalatest.{ BeforeAndAfterAll, FlatSpec, Matchers }
 import spray.json.DefaultJsonProtocol
 
 import scala.concurrent.duration._
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 import scala.util.Try
 
 trait TestSpec extends FlatSpec with Matchers with ScalaFutures with BeforeAndAfterAll with DefaultJsonProtocol {
@@ -27,26 +43,4 @@ trait TestSpec extends FlatSpec with Matchers with ScalaFutures with BeforeAndAf
     system.shutdown()
     system.awaitTermination()
   }
-}
-
-trait Storage extends ScalaFutures {
-  implicit def system: ActorSystem
-  implicit def ec: ExecutionContext
-  implicit def pc: PatienceConfig
-  val dbDomain = DatabaseDomain(system)
-//  val mongoDomain = MongoDBDomain(system)
-  val rabbit = RabbitConnection(system)
-  val orders = dbDomain.orders
-  val db = dbDomain.db
-  val connection = rabbit.connection
-
-  rabbit.init.flatMap { _ =>
-    dbDomain.init
-  }.futureValue
-}
-
-trait FlowFactory {
-  // processing pipelines here; integrate over remote and/or local producers/consumers
-
-  // the flows can communicate with local/remote services and/or actors
 }
