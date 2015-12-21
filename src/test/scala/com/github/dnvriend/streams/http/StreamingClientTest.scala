@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
-package com.github.dnvriend.streams
+package com.github.dnvriend.streams.http
 
-import scala.util.Random
+import com.github.dnvriend.streams.TestSpec
 
-case class InputCustomer(name: String)
-case class OutputCustomer(firstName: String, lastName: String)
+// see: https://github.com/abrighton/akka-http-test/blob/master/src/main/scala/akkahttp/test/TestClient.scala
+class StreamingClientTest extends TestSpec {
 
-object InputCustomer {
-  def random() = InputCustomer(s"FirstName${Random.nextInt(1000)} LastName${Random.nextInt(1000)}")
+  "StreamingClient" should "Get from google" in {
+    val resp = StreamingClient.doGet("www.google.com", 80, "/").futureValue
+    println(resp)
+  }
+
 }

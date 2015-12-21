@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.github.dnvriend.streams
+package com.github.dnvriend.streams.http
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http

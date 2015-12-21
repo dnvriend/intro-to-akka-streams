@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-package com.github.dnvriend.streams
+package com.github.dnvriend.streams.actorpublisher
 
 import akka.actor.{ ActorLogging, Props }
-import akka.stream.{ ActorMaterializerSettings, ActorMaterializer, Supervision }
 import akka.stream.actor.ActorPublisherMessage._
 import akka.stream.actor.ActorSubscriberMessage.{ OnComplete, OnError, OnNext }
 import akka.stream.actor.{ ActorPublisher, ActorSubscriber, MaxInFlightRequestStrategy }
 import akka.stream.scaladsl._
+import akka.stream.{ ActorMaterializer, ActorMaterializerSettings, Supervision }
+import com.github.dnvriend.streams.TestSpec
 
 import scala.concurrent.duration._
 import scala.concurrent.{ Await, Future }

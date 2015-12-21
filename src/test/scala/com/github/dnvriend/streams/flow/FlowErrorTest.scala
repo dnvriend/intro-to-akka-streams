@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package com.github.dnvriend.streams
+package com.github.dnvriend.streams.flow
 
 import akka.stream.ActorAttributes.supervisionStrategy
 import akka.stream.Supervision.resumingDecider
 import akka.stream.scaladsl._
 import akka.stream.testkit.scaladsl._
+import com.github.dnvriend.streams.TestSpec
 
 import scala.concurrent.Future
-import scala.util.{ Success, Failure, Try }
+import scala.util.{ Failure, Success, Try }
 
 class FlowErrorTest extends TestSpec {
 

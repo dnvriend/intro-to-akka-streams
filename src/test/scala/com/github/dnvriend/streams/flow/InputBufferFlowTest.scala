@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package com.github.dnvriend.streams
+package com.github.dnvriend.streams.flow
 
 import akka.stream.Attributes
 import akka.stream.scaladsl.{ Flow, Source }
+import com.github.dnvriend.streams.TestSpec
 
-class CounterTest extends TestSpec {
+class InputBufferFlowTest extends TestSpec {
 
   /**
-   * A single inputBuffer flow
+   * A flow with configured input buffer set to max 1 element.
    */
-  val single = Flow[Int].withAttributes(Attributes.inputBuffer(initial = 1, max = 1))
-
-  def debug[T] = Flow[T].map { x ⇒ println(x); x }
+  val single: Flow[Int, Int, Unit] =
+    Flow[Int].withAttributes(Attributes.inputBuffer(initial = 1, max = 1))
 
   val fastSrc =
     Source(() ⇒ Iterator from 0)
@@ -40,7 +40,6 @@ class CounterTest extends TestSpec {
     fastSrc
       .via(single)
       .take(10)
-      .via(debug)
       .runFold(0)((c, _) ⇒ c + 1)
       .futureValue shouldBe 10
   }

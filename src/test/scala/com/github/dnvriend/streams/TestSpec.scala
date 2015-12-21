@@ -32,7 +32,6 @@ trait TestSpec extends FlatSpec with Matchers with ScalaFutures with BeforeAndAf
   implicit val ec: ExecutionContext = system.dispatcher
   implicit val mat: Materializer = ActorMaterializer()
   implicit val log: LoggingAdapter = Logging(system, this.getClass)
-  implicit val orderJsonFormat = jsonFormat3(Order)
   implicit val pc: PatienceConfig = PatienceConfig(timeout = 50.seconds)
 
   implicit class FutureToTry[T](f: Future[T]) {
@@ -40,7 +39,7 @@ trait TestSpec extends FlatSpec with Matchers with ScalaFutures with BeforeAndAf
   }
 
   override protected def afterAll(): Unit = {
-    system.shutdown()
-    system.awaitTermination()
+    system.terminate()
+    system.whenTerminated.toTry should be a 'success
   }
 }

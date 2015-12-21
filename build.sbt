@@ -1,30 +1,27 @@
 name := "intro-to-akka-streams"
 
+organization := "com.github.dnvriend"
+
 version := "1.0.0"
 
 scalaVersion := "2.11.7"
 
-resolvers += Resolver.bintrayRepo("mfglabs", "maven")
-
 libraryDependencies ++= {
- val akkaVersion    = "2.3.12"
- val streamsVersion = "1.0"
- Seq(
-  "com.typesafe.akka"  %%  "akka-actor"                       % akkaVersion,
-  "com.typesafe.akka"  %%  "akka-kernel"                      % akkaVersion,
-  "com.typesafe.akka"  %%  "akka-stream-experimental"         % streamsVersion,
-  "com.typesafe.akka"  %%  "akka-http-core-experimental"      % streamsVersion,
-  "com.typesafe.akka"  %% "akka-http-spray-json-experimental" % streamsVersion,
-  "com.typesafe.slick" %%  "slick"                            % "3.0.0",
-  "com.zaxxer"          %  "HikariCP-java6"                   % "2.3.5",
-  "org.postgresql"      %  "postgresql"                       % "9.4-1201-jdbc41",
-  "io.scalac"          %%  "reactive-rabbit"                  % "1.0.0",
-  "com.typesafe.akka"  %%  "akka-stream-testkit-experimental" % streamsVersion % Test,
-  "org.scalatest"      %%  "scalatest"                        % "2.2.4"        % Test
- )
+  val akkaVersion = "2.4.1"
+  val akkaStreamAndHttpVersion = "1.0"
+  Seq(
+    "com.typesafe.akka" %% "akka-actor" % akkaVersion,
+    "com.typesafe.akka" %% "akka-stream-experimental" % akkaStreamAndHttpVersion,
+    "com.typesafe.akka" %% "akka-http-core-experimental" % akkaStreamAndHttpVersion,
+    "com.typesafe.akka" %% "akka-http-spray-json-experimental" % akkaStreamAndHttpVersion,
+    "com.typesafe.akka" %% "akka-stream-testkit-experimental" % akkaStreamAndHttpVersion % Test,
+    "org.scalatest" %% "scalatest" % "2.2.4" % Test
+  )
 }
 
 fork in Test := true
+
+javaOptions in Test ++= Seq("-Xms30m","-Xmx30m")
 
 parallelExecution in Test := false
 
@@ -45,8 +42,8 @@ ScalariformKeys.preferences := ScalariformKeys.preferences.value
 import de.heikoseeberger.sbtheader.license.Apache2_0
 
 headers := Map(
- "scala" -> Apache2_0("2015", "Dennis Vriend"),
- "conf" -> Apache2_0("2015", "Dennis Vriend", "#")
+  "scala" -> Apache2_0("2015", "Dennis Vriend"),
+  "conf" -> Apache2_0("2015", "Dennis Vriend", "#")
 )
 
 enablePlugins(AutomateHeaderPlugin)

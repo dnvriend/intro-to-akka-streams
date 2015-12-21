@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package com.github.dnvriend.streams
+package com.github.dnvriend.streams.flow
 
 import akka.stream.OverflowStrategy
 import akka.stream.scaladsl.Source
+import com.github.dnvriend.streams.TestSpec
 
 import scala.concurrent.Future
 
