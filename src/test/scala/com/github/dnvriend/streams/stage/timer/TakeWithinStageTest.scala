@@ -14,34 +14,37 @@
  * limitations under the License.
  */
 
-package com.github.dnvriend.streams.stage
+package com.github.dnvriend.streams.stage.timer
 
 import akka.stream.scaladsl.Source
 import akka.stream.testkit.scaladsl.TestSink
 import com.github.dnvriend.streams.TestSpec
 
-class TakeStageTest extends TestSpec {
+import scala.concurrent.duration._
+
+class TakeWithinStageTest extends TestSpec {
   /**
    * Terminate processing (and cancel the upstream publisher) after the given
-   * number of elements. Due to input buffering some elements may have been
+   * duration. Due to input buffering some elements may have been
    * requested from upstream publishers that will then not be processed downstream
    * of this step.
    *
-   * The stream will be completed without producing any elements if `n` is zero
-   * or negative.
+   * Note that this can be combined with `take` to limit the number of elements
+   * within the duration.
    *
-   * - Emits when: the specified number of elements to take has not yet been reached
+   * - Emits when: an upstream element arrives
    * - Backpressures when: downstream backpressures
-   * - Completes when: the defined number of elements has been taken or upstream completes
-   * - Cancels when: the defined number of elements has been taken or downstream cancels
+   * - Completes when: upstream completes or timer fires
+   * - Cancels when: downstream cancels or timer fires
    */
 
-  "Take" should "emit only 'n' number of elements and then complete" in {
+  "TakeWithin" should "take elements in the duration window, when the window has passed, the stream completes" in {
     Source(() ⇒ Iterator from 0)
-      .take(3)
+      .takeWithin(500.millis)
+      .map { e ⇒ Thread.sleep(200); e }
       .runWith(TestSink.probe[Int])
-      .request(3)
-      .expectNext(0, 1, 2)
+      .request(5)
+      .expectNext(0, 1, 2, 3)
       .expectComplete()
   }
 }

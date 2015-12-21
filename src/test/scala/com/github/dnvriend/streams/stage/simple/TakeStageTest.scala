@@ -14,34 +14,34 @@
  * limitations under the License.
  */
 
-package com.github.dnvriend.streams.stage
+package com.github.dnvriend.streams.stage.simple
 
 import akka.stream.scaladsl.Source
 import akka.stream.testkit.scaladsl.TestSink
 import com.github.dnvriend.streams.TestSpec
 
-class TakeWhileStageTest extends TestSpec {
+class TakeStageTest extends TestSpec {
   /**
-   * Terminate processing (and cancel the upstream publisher) after predicate
-   * returns false for the first time. Due to input buffering some elements may have been
+   * Terminate processing (and cancel the upstream publisher) after the given
+   * number of elements. Due to input buffering some elements may have been
    * requested from upstream publishers that will then not be processed downstream
    * of this step.
    *
-   * The stream will be completed without producing any elements if predicate is false for
-   * the first stream element.
+   * The stream will be completed without producing any elements if `n` is zero
+   * or negative.
    *
-   * - Emits when: the predicate is true
+   * - Emits when: the specified number of elements to take has not yet been reached
    * - Backpressures when: downstream backpressures
-   * - Completes when: predicate returned false or upstream completes
-   * - Cancels when predicate returned false or downstream cancels
+   * - Completes when: the defined number of elements has been taken or upstream completes
+   * - Cancels when: the defined number of elements has been taken or downstream cancels
    */
 
-  "TakeWhile" should "emit elements while the predicate is true, and completes when the predicate is false" in {
+  "Take" should "emit only 'n' number of elements and then complete" in {
     Source(() ⇒ Iterator from 0)
-      .takeWhile(_ < 5)
+      .take(3)
       .runWith(TestSink.probe[Int])
-      .request(6)
-      .expectNext(0, 1, 2, 3, 4)
+      .request(3)
+      .expectNext(0, 1, 2)
       .expectComplete()
   }
 }

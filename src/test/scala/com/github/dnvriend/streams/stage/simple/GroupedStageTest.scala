@@ -14,37 +14,33 @@
  * limitations under the License.
  */
 
-package com.github.dnvriend.streams.stage
+package com.github.dnvriend.streams.stage.simple
 
 import akka.stream.scaladsl.Source
 import akka.stream.testkit.scaladsl.TestSink
 import com.github.dnvriend.streams.TestSpec
 
-class ScanStageTest extends TestSpec {
+class GroupedStageTest extends TestSpec {
 
   /**
-   * Similar to `fold` but is not a terminal operation,
-   * emits its current value which starts at `zero` and then
-   * applies the current and next value to the given function `f`,
-   * emitting the next current value.
+   * Chunk up this stream into groups of the given size, with the last group
+   * possibly smaller than requested due to end-of-stream.
    *
-   * If the function `f` throws an exception and the supervision decision is
-   * [[akka.stream.Supervision.Restart]] current value starts at `zero` again
-   * the stream will continue.
+   * `n` must be positive, otherwise IllegalArgumentException is thrown.
    *
-   * - Emits when: the function scanning the element returns a new element
-   * - Backpressures when: downstream backpressures
+   * - Emits when: the specified number of elements has been accumulated or upstream completed
+   * - Backpressures when: a group has been assembled and downstream backpressures
    * - Completes when: upstream completes
    * - Cancels when: downstream cancels
    */
 
-  "Scan" should "do the same as fold, but emits the next current value to the stream" in {
+  "Grouping a stream of numbers in sequences of three" should "result in two sequences" in {
     Source(() ⇒ Iterator from 0)
-      .take(4)
-      .scan(0) { (c, _) ⇒ c + 1 }
-      .runWith(TestSink.probe[Int])
-      .request(5)
-      .expectNext(0, 1, 2, 3, 4)
+      .take(5)
+      .grouped(3)
+      .runWith(TestSink.probe[Seq[Int]])
+      .request(2)
+      .expectNext(List(0, 1, 2), List(3, 4))
       .expectComplete()
   }
 }

@@ -14,29 +14,30 @@
  * limitations under the License.
  */
 
-package com.github.dnvriend.streams.stage
+package com.github.dnvriend.streams.stage.simple
 
 import akka.stream.scaladsl.Source
 import akka.stream.testkit.scaladsl.TestSink
 import com.github.dnvriend.streams.TestSpec
 
-class FilterStageTest extends TestSpec {
+class MapStageTest extends TestSpec {
   /**
-   * Only pass on those elements that satisfy the given predicate.
+   * Transform this stream by applying the given function to each of the elements
+   * as they pass through this processing step.
    *
-   * - Emits when: the given predicate returns true for the element
-   * - Backpressures when: the given predicate returns true for the element and downstream backpressures
+   * - Emits when: the mapping function returns an element
+   * - Backpressures when: downstream backpressures
    * - Completes when: upstream completes
    * - Cancels when: downstream cancels
    */
 
-  "Filter a sequence of numbers for even numbers" should "emit only even numbers" in {
+  "Map" should "transform the stream by applying the function to each element" in {
     Source(() ⇒ Iterator from 0)
-      .take(10)
-      .filter(_ % 2 == 0)
+      .take(3)
+      .map(_ * 2)
       .runWith(TestSink.probe[Int])
-      .request(10)
-      .expectNext(0, 2, 4, 6, 8)
+      .request(4)
+      .expectNext(0, 2, 4)
       .expectComplete()
   }
 }

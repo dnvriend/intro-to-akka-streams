@@ -14,27 +14,27 @@
  * limitations under the License.
  */
 
-package com.github.dnvriend.streams.stage
+package com.github.dnvriend.streams.stage.simple
 
 import akka.stream.scaladsl.Source
 import akka.stream.testkit.scaladsl.TestSink
 import com.github.dnvriend.streams.TestSpec
 
-class DropWhileStageTest extends TestSpec {
+class DropStageTest extends TestSpec {
   /**
-   * Discard elements at the beginning of the stream while predicate is true.
-   * All elements will be taken after predicate returns false first time.
+   * Discard the given number of elements at the beginning of the stream.
+   * No elements will be dropped if `n` is zero or negative.
    *
-   * - Emits when: predicate returned false and for all following stream elements
-   * - Backpressures when: predicate returned false and downstream backpressures
+   * - Emits when: the specified number of elements has been dropped already
+   * - Backpressures when: the specified number of elements has been dropped and downstream backpressures
    * - Completes when: upstream completes
    * - Cancels when: downstream cancels
    */
 
-  "DropWhile" should "discard elements while the predicate is true, else it emits elements" in {
+  "Drop" should "discard the given number of elements at the beginning of the stream" in {
     Source(() ⇒ Iterator from 0)
       .take(10)
-      .dropWhile(_ < 5)
+      .drop(5)
       .runWith(TestSink.probe[Int])
       .request(10)
       .expectNext(5, 6, 7, 8, 9)

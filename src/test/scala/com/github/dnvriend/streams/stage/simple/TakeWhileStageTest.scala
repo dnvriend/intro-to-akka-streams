@@ -14,30 +14,34 @@
  * limitations under the License.
  */
 
-package com.github.dnvriend.streams.stage
+package com.github.dnvriend.streams.stage.simple
 
 import akka.stream.scaladsl.Source
 import akka.stream.testkit.scaladsl.TestSink
 import com.github.dnvriend.streams.TestSpec
 
-class MapStageTest extends TestSpec {
+class TakeWhileStageTest extends TestSpec {
   /**
-   * Transform this stream by applying the given function to each of the elements
-   * as they pass through this processing step.
+   * Terminate processing (and cancel the upstream publisher) after predicate
+   * returns false for the first time. Due to input buffering some elements may have been
+   * requested from upstream publishers that will then not be processed downstream
+   * of this step.
    *
-   * - Emits when: the mapping function returns an element
+   * The stream will be completed without producing any elements if predicate is false for
+   * the first stream element.
+   *
+   * - Emits when: the predicate is true
    * - Backpressures when: downstream backpressures
-   * - Completes when: upstream completes
-   * - Cancels when: downstream cancels
+   * - Completes when: predicate returned false or upstream completes
+   * - Cancels when predicate returned false or downstream cancels
    */
 
-  "Map" should "transform the stream by applying the function to each element" in {
+  "TakeWhile" should "emit elements while the predicate is true, and completes when the predicate is false" in {
     Source(() ⇒ Iterator from 0)
-      .take(3)
-      .map(_ * 2)
+      .takeWhile(_ < 5)
       .runWith(TestSink.probe[Int])
-      .request(4)
-      .expectNext(0, 2, 4)
+      .request(6)
+      .expectNext(0, 1, 2, 3, 4)
       .expectComplete()
   }
 }
