@@ -36,7 +36,7 @@ class MapStageTest extends TestSpec {
       .take(3)
       .map(_ * 2)
       .runWith(TestSink.probe[Int])
-      .request(3)
+      .request(4)
       .expectNext(0, 2, 4)
       .expectComplete()
   }
