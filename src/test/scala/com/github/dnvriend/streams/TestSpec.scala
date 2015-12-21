@@ -19,15 +19,16 @@ package com.github.dnvriend.streams
 import akka.actor._
 import akka.event.{ Logging, LoggingAdapter }
 import akka.stream.{ ActorMaterializer, Materializer }
+import com.github.dnvriend.streams.util.ClasspathResources
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{ BeforeAndAfterAll, FlatSpec, Matchers }
+import org.scalatest.{ GivenWhenThen, BeforeAndAfterAll, FlatSpec, Matchers }
 import spray.json.DefaultJsonProtocol
 
 import scala.concurrent.duration._
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.util.Try
 
-trait TestSpec extends FlatSpec with Matchers with ScalaFutures with BeforeAndAfterAll with DefaultJsonProtocol {
+trait TestSpec extends FlatSpec with Matchers with ScalaFutures with BeforeAndAfterAll with DefaultJsonProtocol with GivenWhenThen with ClasspathResources {
   implicit val system: ActorSystem = ActorSystem()
   implicit val ec: ExecutionContext = system.dispatcher
   implicit val mat: Materializer = ActorMaterializer()
