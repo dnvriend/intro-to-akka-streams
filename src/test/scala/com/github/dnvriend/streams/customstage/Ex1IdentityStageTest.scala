@@ -16,9 +16,10 @@
 
 package com.github.dnvriend.streams.customstage
 
-import akka.stream.scaladsl.Source
-import akka.stream.stage.{ PushStage, SyncDirective, Context, PushPullStage }
+import akka.stream.impl.fusing.GraphStages
+import akka.stream.stage._
 import akka.stream.testkit.scaladsl.TestSink
+import akka.stream.{Attributes, FlowShape, Inlet, Outlet}
 import com.github.dnvriend.streams.TestSpec
 
 class Ex1IdentityStageTest extends TestSpec {
@@ -28,8 +29,7 @@ class Ex1IdentityStageTest extends TestSpec {
    * logic inside a stage that is not part of the standard processing capabilities of akka-streams.
    *
    * For an overview of what comes out of the box have a look at:
-   * http://doc.akka.io/docs/akka-stream-and-http-experimental/1.0/stages-overview.html
-   *
+   * http://doc.akka.io/docs/akka-stream-and-http-experimental/2.0.1/stages-overview.html
    *
    * Say we just want to learn how to use the PushPullStage, which is the most elementary transformation stage
    * available in akka-streams, and implement some custom logic, just to learn, we can extend the stage and
@@ -73,11 +73,14 @@ class Ex1IdentityStageTest extends TestSpec {
      * In the example below we use a TestProbe as the Source that generates demand and
      * does assertions.
      */
-    Source(1 to 2).transform(() ⇒ new CustomIdentityStage)
-      .runWith(TestSink.probe[Int])
-      .request(2)
-      .expectNext(1, 2)
-      .expectComplete()
+    withIterator() { src ⇒
+      src.take(2)
+        .transform(() ⇒ new CustomIdentityStage)
+        .runWith(TestSink.probe[Int])
+        .request(Int.MaxValue)
+        .expectNext(0, 1)
+        .expectComplete()
+    }
   }
 
   it should "also be implemented using the PushStage" in {
@@ -104,10 +107,60 @@ class Ex1IdentityStageTest extends TestSpec {
      * In the example below we use a TestProbe as the Source that generates demand and
      * does assertions.
      */
-    Source(1 to 2).transform(() ⇒ new CustomIdentityStage)
-      .runWith(TestSink.probe[Int])
-      .request(2)
-      .expectNext(1, 2)
-      .expectComplete()
+    withIterator() { src ⇒
+      src.transform(() ⇒ new CustomIdentityStage)
+        .take(2)
+        .runWith(TestSink.probe[Int])
+        .request(Int.MaxValue)
+        .expectNext(0, 1)
+        .expectComplete()
+    }
+  }
+
+  it should "also be implemented as a GraphStage" in {
+    /**
+     * The `GraphStage` abstraction can be used to create arbitrary graph processing stages with any number of input
+     * or output ports. It is a counterpart of the GraphDSL.create() method which creates new stream processing stages
+     * by composing others. Where GraphStage differs is that it creates a stage that is itself not divisible into
+     * smaller ones, and allows state to be maintained inside it in a safe way.
+     */
+
+    class CustomIdentityStage[A] extends GraphStage[FlowShape[A, A]] {
+      val in = Inlet[A]("Identity.in")
+      val out = Outlet[A]("Identity.out")
+
+      override def shape: FlowShape[A, A] = FlowShape.of(in, out)
+
+      override def createLogic(inheritedAttributes: Attributes): GraphStageLogic = new GraphStageLogic(shape) {
+        setHandler(in, new InHandler {
+          override def onPush(): Unit =
+            push(out, grab(in))
+        })
+
+        setHandler(out, new OutHandler {
+          override def onPull(): Unit = pull(in)
+        })
+      }
+    }
+
+    withIterator() { src ⇒
+      src.take(2)
+        .via(new CustomIdentityStage)
+        .runWith(TestSink.probe[Int])
+        .request(Int.MaxValue)
+        .expectNext(0, 1)
+        .expectComplete()
+    }
+  }
+
+  it should "already be implemented in the akka stream API" in {
+    withIterator() { src ⇒
+      src.take(2)
+        .via(GraphStages.identity)
+        .runWith(TestSink.probe[Int])
+        .request(Int.MaxValue)
+        .expectNext(0, 1)
+        .expectComplete()
+    }
   }
 }
