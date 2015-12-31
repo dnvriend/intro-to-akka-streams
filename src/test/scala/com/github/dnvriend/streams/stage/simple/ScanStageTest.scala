@@ -16,7 +16,6 @@
 
 package com.github.dnvriend.streams.stage.simple
 
-import akka.stream.scaladsl.Source
 import akka.stream.testkit.scaladsl.TestSink
 import com.github.dnvriend.streams.TestSpec
 
@@ -39,12 +38,13 @@ class ScanStageTest extends TestSpec {
    */
 
   "Scan" should "do the same as fold, but emits the next current value to the stream" in {
-    Source(() ⇒ Iterator from 0)
-      .take(4)
-      .scan(0) { (c, _) ⇒ c + 1 }
-      .runWith(TestSink.probe[Int])
-      .request(5)
-      .expectNext(0, 1, 2, 3, 4)
-      .expectComplete()
+    withIterator() { src ⇒
+      src.take(4)
+        .scan(0) { (c, _) ⇒ c + 1 }
+        .runWith(TestSink.probe[Int])
+        .request(5)
+        .expectNext(0, 1, 2, 3, 4)
+        .expectComplete()
+    }
   }
 }

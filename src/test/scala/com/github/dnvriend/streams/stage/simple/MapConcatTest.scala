@@ -16,7 +16,6 @@
 
 package com.github.dnvriend.streams.stage.simple
 
-import akka.stream.scaladsl.Source
 import akka.stream.testkit.scaladsl.TestSink
 import com.github.dnvriend.streams.TestSpec
 
@@ -39,13 +38,35 @@ class MapConcatTest extends TestSpec {
    * - Cancels when: downstream cancels
    */
 
-  "MapConcat" should "transform each input element into an 'iterable' of output elements that is then flattned into the output stream" in {
-    Source(() ⇒ Iterator from 0)
-      .take(3)
-      .mapConcat(e ⇒ List(e, e, e))
-      .runWith(TestSink.probe[Int])
-      .request(9)
-      .expectNext(0, 0, 0, 1, 1, 1, 2, 2, 2)
-      .expectComplete()
+  "MapConcat" should "transform each input element into an 'iterable' of output elements that is then flattened into the output stream" in {
+    withIterator() { src ⇒
+      src.take(3)
+        .mapConcat(e ⇒ List(e, e, e))
+        .runWith(TestSink.probe[Int])
+        .request(9)
+        .expectNext(0, 0, 0, 1, 1, 1, 2, 2, 2)
+        .expectComplete()
+    }
+  }
+
+  it should "flatten two lists" in {
+    withIterator() { src ⇒
+      src.take(5)
+        .grouped(3)
+        .mapConcat(identity)
+        .runWith(TestSink.probe[Int])
+        .request(6)
+        .expectNext(0, 1, 2, 3, 4)
+        .expectComplete()
+    }
+  }
+
+  it should "flatten two sequences" in {
+    withIterator() { src ⇒
+      src.take(10)
+        .splitWhen(_ < 3)
+        .concatSubstreams
+        .runForeach(println)
+    }
   }
 }

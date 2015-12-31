@@ -21,11 +21,10 @@ import akka.stream.actor.ActorPublisherMessage._
 import akka.stream.actor.ActorSubscriberMessage.{ OnComplete, OnError, OnNext }
 import akka.stream.actor.{ ActorPublisher, ActorSubscriber, MaxInFlightRequestStrategy }
 import akka.stream.scaladsl._
-import akka.stream.{ ActorMaterializer, ActorMaterializerSettings, Supervision }
+import akka.stream.{ ActorMaterializer, ActorMaterializerSettings, ClosedShape, Supervision }
 import com.github.dnvriend.streams.TestSpec
 
-import scala.concurrent.duration._
-import scala.concurrent.{ Await, Future }
+import scala.concurrent.Future
 
 /**
  * A simple stream publisher that generates numbers every time a `Request` for demand has been received.
@@ -170,20 +169,20 @@ class AkkaPublisherSubscriberTest extends TestSpec {
   val printlnSink = Sink.foreach(println)
 
   /**
-   * The FlowGraph that will be reused; it is a simple broadcast, splitting the flow into 2
-   * @param sink
-   * @return
+   * The GraphDSL that will be reused; it is a simple broadcast, splitting the flow into 2
    */
-  def graph(sink: Sink[Long, Future[Unit]], f: Long ⇒ Unit) = FlowGraph.closed(sink) { implicit b ⇒
-    sink ⇒
-      import FlowGraph.Implicits._
-      val src = Source.actorPublisher(Props(new NumberPublisher()))
-      val numberSink = Sink.actorSubscriber(Props(new NumberSubscriber(1, f)))
-      val bcast = b.add(Broadcast[Long](2))
+  def graph(sink: Sink[Long, Future[Unit]], f: Long ⇒ Unit) = RunnableGraph.fromGraph(
+    GraphDSL.create(sink) { implicit b ⇒
+      sink ⇒
+        import GraphDSL.Implicits._
+        val src = Source.actorPublisher(Props(new NumberPublisher()))
+        val numberSink = Sink.actorSubscriber(Props(new NumberSubscriber(1, f)))
+        val bcast = b.add(Broadcast[Long](2))
 
-      src ~> bcast ~> numberSink
-      bcast ~> sink
-  }
+        src ~> bcast ~> numberSink
+        bcast ~> sink
+        ClosedShape
+    })
 
   "NumberProducer" should "count some time" in {
     // the default demand is 4, and will not ask for more
@@ -193,12 +192,12 @@ class AkkaPublisherSubscriberTest extends TestSpec {
   }
 
   it should "use a subscriber to supply backpressure" in {
-    Await.ready(graph(printlnSink, x ⇒ ()).run(), 1.minute)
+    graph(printlnSink, x ⇒ ()).run().futureValue
   }
 
   it should "throws an exception when count == 10, println continues" in {
     // note, the actor crashes and will be stopped, but the println sink will continue
-    Await.ready(graph(printlnSink, x ⇒ if (x == 10) throw new RuntimeException("10 reached")).run(), 1.minute)
+    graph(printlnSink, x ⇒ if (x == 10) throw new RuntimeException("10 reached")).run().futureValue
   }
 
   // should use actor supervision for this.. TBC
@@ -207,6 +206,6 @@ class AkkaPublisherSubscriberTest extends TestSpec {
       case _ ⇒ Supervision.Restart
     }
     implicit val mat = ActorMaterializer(ActorMaterializerSettings(system).withSupervisionStrategy(decider))
-    Await.ready(graph(printlnSink, x ⇒ if (x == 10) throw new RuntimeException("10 reached")).run(), 1.minute)
+    graph(printlnSink, x ⇒ if (x == 10) throw new RuntimeException("10 reached")).run().futureValue
   }
 }

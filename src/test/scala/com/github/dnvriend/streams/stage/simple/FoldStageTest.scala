@@ -16,7 +16,6 @@
 
 package com.github.dnvriend.streams.stage.simple
 
-import akka.stream.scaladsl.Source
 import akka.stream.testkit.scaladsl.TestSink
 import com.github.dnvriend.streams.TestSpec
 
@@ -37,12 +36,13 @@ class FoldStageTest extends TestSpec {
    */
 
   "Fold" should "emit only an element when the upstream completes" in {
-    Source(() ⇒ Iterator from 0)
-      .take(4)
-      .fold(0) { (c, _) ⇒ c + 1 }
-      .runWith(TestSink.probe[Int])
-      .request(5)
-      .expectNext(4)
-      .expectComplete()
+    withIterator() { src ⇒
+      src.take(4)
+        .fold(0) { (c, _) ⇒ c + 1 }
+        .runWith(TestSink.probe[Int])
+        .request(5)
+        .expectNext(4)
+        .expectComplete()
+    }
   }
 }

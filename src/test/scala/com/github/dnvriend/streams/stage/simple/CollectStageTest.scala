@@ -16,7 +16,6 @@
 
 package com.github.dnvriend.streams.stage.simple
 
-import akka.stream.scaladsl.Source
 import akka.stream.testkit.scaladsl.TestSink
 import com.github.dnvriend.streams.TestSpec
 
@@ -33,16 +32,17 @@ class CollectStageTest extends TestSpec {
    */
 
   "Collect" should "transform the stream by applying the partial function for each element" in {
-    Source(() ⇒ Iterator from 0)
-      .take(10)
-      .collect {
-        case e if e < 5           ⇒ e.toString
-        case e if e >= 5 && e < 8 ⇒ (e * 2).toString
-        case _                    ⇒ "UNKNOWN"
-      }
-      .runWith(TestSink.probe[String])
-      .request(10)
-      .expectNext("0", "1", "2", "3", "4", "10", "12", "14", "UNKNOWN", "UNKNOWN")
-      .expectComplete()
+    withIterator() { src ⇒
+      src.take(10)
+        .collect {
+          case e if e < 5           ⇒ e.toString
+          case e if e >= 5 && e < 8 ⇒ (e * 2).toString
+          case _                    ⇒ "UNKNOWN"
+        }
+        .runWith(TestSink.probe[String])
+        .request(10)
+        .expectNext("0", "1", "2", "3", "4", "10", "12", "14", "UNKNOWN", "UNKNOWN")
+        .expectComplete()
+    }
   }
 }

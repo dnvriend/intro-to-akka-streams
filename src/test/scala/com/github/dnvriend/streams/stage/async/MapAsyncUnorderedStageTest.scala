@@ -47,12 +47,13 @@ class MapAsyncUnorderedStageTest extends TestSpec {
    */
 
   "MapAsyncUnordered" should "transform the stream by applying the function to each element" in {
-    Source(() ⇒ Iterator from 0)
-      .take(10)
-      .mapAsyncUnordered(4)(num ⇒ Future(num * 2))
-      .runWith(TestSink.probe[Int])
-      .request(11)
-      .expectNextUnordered(0, 2, 4, 6, 8, 10, 12, 14, 16, 18)
-      .expectComplete()
+    withIterator() { src ⇒
+      src.take(10)
+        .mapAsyncUnordered(4)(num ⇒ Future(num * 2))
+        .runWith(TestSink.probe[Int])
+        .request(11)
+        .expectNextUnordered(0, 2, 4, 6, 8, 10, 12, 14, 16, 18)
+        .expectComplete()
+    }
   }
 }

@@ -18,6 +18,7 @@ package com.github.dnvriend.streams
 
 import akka.actor._
 import akka.event.{ Logging, LoggingAdapter }
+import akka.stream.scaladsl.Source
 import akka.stream.{ ActorMaterializer, Materializer }
 import com.github.dnvriend.streams.util.ClasspathResources
 import org.scalatest.concurrent.ScalaFutures
@@ -38,6 +39,12 @@ trait TestSpec extends FlatSpec with Matchers with ScalaFutures with BeforeAndAf
   implicit class FutureToTry[T](f: Future[T]) {
     def toTry: Try[T] = Try(f.futureValue)
   }
+
+  /**
+   * Returns a Source[Int, Unit]
+   */
+  def withIterator[T](from: Int = 0)(f: Source[Int, Unit] ⇒ T): T =
+    f(Source.fromIterator(() ⇒ Iterator from 0))
 
   override protected def afterAll(): Unit = {
     system.terminate()

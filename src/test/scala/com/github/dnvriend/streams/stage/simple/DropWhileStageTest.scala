@@ -16,7 +16,6 @@
 
 package com.github.dnvriend.streams.stage.simple
 
-import akka.stream.scaladsl.Source
 import akka.stream.testkit.scaladsl.TestSink
 import com.github.dnvriend.streams.TestSpec
 
@@ -32,12 +31,14 @@ class DropWhileStageTest extends TestSpec {
    */
 
   "DropWhile" should "discard elements while the predicate is true, else it emits elements" in {
-    Source(() ⇒ Iterator from 0)
-      .take(10)
-      .dropWhile(_ < 5)
-      .runWith(TestSink.probe[Int])
-      .request(10)
-      .expectNext(5, 6, 7, 8, 9)
-      .expectComplete()
+    withIterator() { src ⇒
+      src.take(10)
+        .dropWhile(_ < 5)
+        .runWith(TestSink.probe[Int])
+        .request(10)
+        .expectNext(5, 6, 7, 8, 9)
+        .expectComplete()
+    }
+
   }
 }

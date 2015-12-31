@@ -16,7 +16,6 @@
 
 package com.github.dnvriend.streams.stage.simple
 
-import akka.stream.scaladsl.Source
 import akka.stream.testkit.scaladsl.TestSink
 import com.github.dnvriend.streams.TestSpec
 
@@ -37,11 +36,12 @@ class TakeStageTest extends TestSpec {
    */
 
   "Take" should "emit only 'n' number of elements and then complete" in {
-    Source(() ⇒ Iterator from 0)
-      .take(3)
-      .runWith(TestSink.probe[Int])
-      .request(3)
-      .expectNext(0, 1, 2)
-      .expectComplete()
+    withIterator() { src ⇒
+      src.take(3)
+        .runWith(TestSink.probe[Int])
+        .request(3)
+        .expectNext(0, 1, 2)
+        .expectComplete()
+    }
   }
 }

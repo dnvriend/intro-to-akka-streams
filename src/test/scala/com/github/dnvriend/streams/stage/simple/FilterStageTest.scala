@@ -16,7 +16,6 @@
 
 package com.github.dnvriend.streams.stage.simple
 
-import akka.stream.scaladsl.Source
 import akka.stream.testkit.scaladsl.TestSink
 import com.github.dnvriend.streams.TestSpec
 
@@ -31,12 +30,13 @@ class FilterStageTest extends TestSpec {
    */
 
   "Filter a sequence of numbers for even numbers" should "emit only even numbers" in {
-    Source(() ⇒ Iterator from 0)
-      .take(10)
-      .filter(_ % 2 == 0)
-      .runWith(TestSink.probe[Int])
-      .request(10)
-      .expectNext(0, 2, 4, 6, 8)
-      .expectComplete()
+    withIterator() { src ⇒
+      src.take(10)
+        .filter(_ % 2 == 0)
+        .runWith(TestSink.probe[Int])
+        .request(10)
+        .expectNext(0, 2, 4, 6, 8)
+        .expectComplete()
+    }
   }
 }

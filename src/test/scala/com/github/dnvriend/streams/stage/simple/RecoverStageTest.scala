@@ -16,7 +16,6 @@
 
 package com.github.dnvriend.streams.stage.simple
 
-import akka.stream.scaladsl.Source
 import akka.stream.testkit.scaladsl.TestSink
 import com.github.dnvriend.streams.TestSpec
 
@@ -36,30 +35,32 @@ class RecoverStageTest extends TestSpec {
    */
 
   "Recover" should "emits / forward received elements for non-error messages / normal operation" in {
-    Source(() ⇒ Iterator from 0)
-      .take(3)
-      .recover {
-        case e: RuntimeException ⇒ 1000
-      }
-      .runWith(TestSink.probe[Int])
-      .request(3)
-      .expectNext(0, 1, 2)
-      .expectComplete()
+    withIterator() { src ⇒
+      src.take(3)
+        .recover {
+          case e: RuntimeException ⇒ 1000
+        }
+        .runWith(TestSink.probe[Int])
+        .request(3)
+        .expectNext(0, 1, 2)
+        .expectComplete()
+    }
   }
 
   it should "emit 1000 when the stream fails thus recover the last element, afterwards the stream completes" in {
-    Source(() ⇒ Iterator from 0)
-      .take(3)
-      .collect {
-        case 1 ⇒ throw new RuntimeException("Forced exception")
-        case e ⇒ e
-      }
-      .recover {
-        case e: RuntimeException ⇒ 1000
-      }
-      .runWith(TestSink.probe[Int])
-      .request(3)
-      .expectNextUnordered(0, 1000)
-      .expectComplete()
+    withIterator() { src ⇒
+      src.take(3)
+        .collect {
+          case 1 ⇒ throw new RuntimeException("Forced exception")
+          case e ⇒ e
+        }
+        .recover {
+          case e: RuntimeException ⇒ 1000
+        }
+        .runWith(TestSink.probe[Int])
+        .request(3)
+        .expectNextUnordered(0, 1000)
+        .expectComplete()
+    }
   }
 }

@@ -16,7 +16,7 @@
 
 package com.github.dnvriend.streams.streammaterialization
 
-import akka.stream.scaladsl.{ Sink, Source }
+import akka.stream.scaladsl.Sink
 import com.github.dnvriend.streams.TestSpec
 
 class StreamMaterializationTest extends TestSpec {
@@ -36,24 +36,27 @@ class StreamMaterializationTest extends TestSpec {
    * for running with well-known sinks, such as runForeach(el => ) (being an alias to runWith(Sink.foreach(el => )).
    */
 
-  "Strean Materialization" should "be triggered using runFold" in {
-    Source(() ⇒ Iterator from 0)
-      .take(10)
-      .runFold(0) { (c, _) ⇒ c + 1 }
-      .futureValue shouldBe 10
+  "Stream Materialization" should "be triggered using runFold" in {
+    withIterator() { src ⇒
+      src.take(10)
+        .runFold(0) { (c, _) ⇒ c + 1 }
+        .futureValue shouldBe 10
+    }
   }
 
   it should "be triggered using runWith" in {
-    Source(() ⇒ Iterator from 0)
-      .take(10)
-      .runForeach(_ ⇒ ())
-      .futureValue shouldBe ()
+    withIterator() { src ⇒
+      src.take(10)
+        .runForeach(_ ⇒ ())
+        .futureValue shouldBe ()
+    }
   }
 
   it should "be triggered using runWith (which takes a sink shape)" in {
-    Source(() ⇒ Iterator from 0)
-      .take(10)
-      .runWith(Sink.foreach(_ ⇒ ()))
-      .futureValue shouldBe ()
+    withIterator() { src ⇒
+      src.take(10)
+        .runWith(Sink.foreach(_ ⇒ ()))
+        .futureValue shouldBe ()
+    }
   }
 }

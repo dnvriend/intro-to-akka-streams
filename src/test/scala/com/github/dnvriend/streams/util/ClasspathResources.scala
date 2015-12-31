@@ -18,8 +18,7 @@ package com.github.dnvriend.streams.util
 
 import java.io.InputStream
 
-import akka.stream.io.InputStreamSource
-import akka.stream.scaladsl.Source
+import akka.stream.scaladsl.{ Source, StreamConverters }
 import akka.util.ByteString
 
 import scala.concurrent.Future
@@ -44,12 +43,12 @@ trait ClasspathResources {
 
   def withXMLEventSource[T](fileName: String)(f: Source[XMLEvent, Unit] ⇒ T): T =
     withXMLEventReader(fileName) { reader ⇒
-      f(Source(() ⇒ reader))
+      f(Source.fromIterator(() ⇒ reader))
     }
 
   def withByteStringSource[T](fileName: String)(f: Source[ByteString, Future[Long]] ⇒ T): T =
     withInputStream(fileName) { inputStream ⇒
-      f(InputStreamSource(() ⇒ inputStream))
+      f(StreamConverters.fromInputStream(() ⇒ inputStream))
     }
 
   def streamToString(is: InputStream): String =

@@ -16,7 +16,6 @@
 
 package com.github.dnvriend.streams.stage.simple
 
-import akka.stream.scaladsl.Source
 import akka.stream.testkit.scaladsl.TestSink
 import com.github.dnvriend.streams.TestSpec
 
@@ -32,12 +31,13 @@ class MapStageTest extends TestSpec {
    */
 
   "Map" should "transform the stream by applying the function to each element" in {
-    Source(() ⇒ Iterator from 0)
-      .take(3)
-      .map(_ * 2)
-      .runWith(TestSink.probe[Int])
-      .request(4)
-      .expectNext(0, 2, 4)
-      .expectComplete()
+    withIterator() { src ⇒
+      src.take(3)
+        .map(_ * 2)
+        .runWith(TestSink.probe[Int])
+        .request(4)
+        .expectNext(0, 2, 4)
+        .expectComplete()
+    }
   }
 }

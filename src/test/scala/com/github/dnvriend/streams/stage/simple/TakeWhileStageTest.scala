@@ -16,7 +16,6 @@
 
 package com.github.dnvriend.streams.stage.simple
 
-import akka.stream.scaladsl.Source
 import akka.stream.testkit.scaladsl.TestSink
 import com.github.dnvriend.streams.TestSpec
 
@@ -37,11 +36,12 @@ class TakeWhileStageTest extends TestSpec {
    */
 
   "TakeWhile" should "emit elements while the predicate is true, and completes when the predicate is false" in {
-    Source(() ⇒ Iterator from 0)
-      .takeWhile(_ < 5)
-      .runWith(TestSink.probe[Int])
-      .request(6)
-      .expectNext(0, 1, 2, 3, 4)
-      .expectComplete()
+    withIterator() { src ⇒
+      src.takeWhile(_ < 5)
+        .runWith(TestSink.probe[Int])
+        .request(6)
+        .expectNext(0, 1, 2, 3, 4)
+        .expectComplete()
+    }
   }
 }

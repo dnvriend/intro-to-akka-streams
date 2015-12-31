@@ -16,7 +16,6 @@
 
 package com.github.dnvriend.streams.stage.simple
 
-import akka.stream.scaladsl.Source
 import akka.stream.testkit.scaladsl.TestSink
 import com.github.dnvriend.streams.TestSpec
 
@@ -35,12 +34,13 @@ class GroupedStageTest extends TestSpec {
    */
 
   "Grouping a stream of numbers in sequences of three" should "result in two sequences" in {
-    Source(() ⇒ Iterator from 0)
-      .take(5)
-      .grouped(3)
-      .runWith(TestSink.probe[Seq[Int]])
-      .request(2)
-      .expectNext(List(0, 1, 2), List(3, 4))
-      .expectComplete()
+    withIterator() { src ⇒
+      src.take(5)
+        .grouped(3)
+        .runWith(TestSink.probe[Seq[Int]])
+        .request(2)
+        .expectNext(List(0, 1, 2), List(3, 4))
+        .expectComplete()
+    }
   }
 }

@@ -16,7 +16,6 @@
 
 package com.github.dnvriend.streams.stage.timer
 
-import akka.stream.scaladsl.Source
 import akka.stream.testkit.scaladsl.TestSink
 import com.github.dnvriend.streams.TestSpec
 
@@ -39,12 +38,13 @@ class TakeWithinStageTest extends TestSpec {
    */
 
   "TakeWithin" should "take elements in the duration window, when the window has passed, the stream completes" in {
-    Source(() ⇒ Iterator from 0)
-      .takeWithin(500.millis)
-      .map { e ⇒ Thread.sleep(200); e }
-      .runWith(TestSink.probe[Int])
-      .request(5)
-      .expectNext(0, 1, 2, 3)
-      .expectComplete()
+    withIterator() { src ⇒
+      src.takeWithin(500.millis)
+        .map { e ⇒ Thread.sleep(200); e }
+        .runWith(TestSink.probe[Int])
+        .request(5)
+        .expectNext(0, 1, 2, 3, 4)
+        .expectComplete()
+    }
   }
 }

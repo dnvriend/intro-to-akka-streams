@@ -16,7 +16,6 @@
 
 package com.github.dnvriend.streams.stage.simple
 
-import akka.stream.scaladsl.Source
 import akka.stream.testkit.scaladsl.TestSink
 import com.github.dnvriend.streams.TestSpec
 
@@ -32,12 +31,13 @@ class DropStageTest extends TestSpec {
    */
 
   "Drop" should "discard the given number of elements at the beginning of the stream" in {
-    Source(() ⇒ Iterator from 0)
-      .take(10)
-      .drop(5)
-      .runWith(TestSink.probe[Int])
-      .request(10)
-      .expectNext(5, 6, 7, 8, 9)
-      .expectComplete()
+    withIterator() { src ⇒
+      src.take(10)
+        .drop(5)
+        .runWith(TestSink.probe[Int])
+        .request(10)
+        .expectNext(5, 6, 7, 8, 9)
+        .expectComplete()
+    }
   }
 }
