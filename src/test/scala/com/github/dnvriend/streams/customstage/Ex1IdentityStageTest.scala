@@ -19,7 +19,7 @@ package com.github.dnvriend.streams.customstage
 import akka.stream.impl.fusing.GraphStages
 import akka.stream.stage._
 import akka.stream.testkit.scaladsl.TestSink
-import akka.stream.{Attributes, FlowShape, Inlet, Outlet}
+import akka.stream.{ Attributes, FlowShape, Inlet, Outlet }
 import com.github.dnvriend.streams.TestSpec
 
 class Ex1IdentityStageTest extends TestSpec {
