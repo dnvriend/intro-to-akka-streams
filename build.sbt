@@ -42,8 +42,8 @@ ScalariformKeys.preferences := ScalariformKeys.preferences.value
 import de.heikoseeberger.sbtheader.license.Apache2_0
 
 headers := Map(
-  "scala" -> Apache2_0("2015", "Dennis Vriend"),
-  "conf" -> Apache2_0("2015", "Dennis Vriend", "#")
+  "scala" -> Apache2_0("2016", "Dennis Vriend"),
+  "conf" -> Apache2_0("2016", "Dennis Vriend", "#")
 )
 
 enablePlugins(AutomateHeaderPlugin)

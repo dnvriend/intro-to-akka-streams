@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Dennis Vriend
+ * Copyright 2016 Dennis Vriend
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ class MapConcatTest extends TestSpec {
       src.take(3)
         .mapConcat(e ⇒ List(e, e, e))
         .runWith(TestSink.probe[Int])
-        .request(9)
+        .request(Integer.MAX_VALUE)
         .expectNext(0, 0, 0, 1, 1, 1, 2, 2, 2)
         .expectComplete()
     }
@@ -55,7 +55,7 @@ class MapConcatTest extends TestSpec {
         .grouped(3)
         .mapConcat(identity)
         .runWith(TestSink.probe[Int])
-        .request(6)
+        .request(Integer.MAX_VALUE)
         .expectNext(0, 1, 2, 3, 4)
         .expectComplete()
     }

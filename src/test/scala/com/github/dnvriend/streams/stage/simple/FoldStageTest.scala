@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Dennis Vriend
+ * Copyright 2016 Dennis Vriend
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ class FoldStageTest extends TestSpec {
       src.take(4)
         .fold(0) { (c, _) ⇒ c + 1 }
         .runWith(TestSink.probe[Int])
-        .request(5)
+        .request(Integer.MAX_VALUE)
         .expectNext(4)
         .expectComplete()
     }

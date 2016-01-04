@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Dennis Vriend
+ * Copyright 2016 Dennis Vriend
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ class FilterStageTest extends TestSpec {
       src.take(10)
         .filter(_ % 2 == 0)
         .runWith(TestSink.probe[Int])
-        .request(10)
+        .request(Integer.MAX_VALUE)
         .expectNext(0, 2, 4, 6, 8)
         .expectComplete()
     }

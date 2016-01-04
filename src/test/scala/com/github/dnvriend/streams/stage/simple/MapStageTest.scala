@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Dennis Vriend
+ * Copyright 2016 Dennis Vriend
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ class MapStageTest extends TestSpec {
       src.take(3)
         .map(_ * 2)
         .runWith(TestSink.probe[Int])
-        .request(4)
+        .request(Integer.MAX_VALUE)
         .expectNext(0, 2, 4)
         .expectComplete()
     }

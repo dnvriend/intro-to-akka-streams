@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Dennis Vriend
+ * Copyright 2016 Dennis Vriend
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ class DropWhileStageTest extends TestSpec {
       src.take(10)
         .dropWhile(_ < 5)
         .runWith(TestSink.probe[Int])
-        .request(10)
+        .request(Integer.MAX_VALUE)
         .expectNext(5, 6, 7, 8, 9)
         .expectComplete()
     }

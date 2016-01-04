@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Dennis Vriend
+ * Copyright 2016 Dennis Vriend
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ class GroupedStageTest extends TestSpec {
       src.take(5)
         .grouped(3)
         .runWith(TestSink.probe[Seq[Int]])
-        .request(2)
+        .request(Integer.MAX_VALUE)
         .expectNext(List(0, 1, 2), List(3, 4))
         .expectComplete()
     }

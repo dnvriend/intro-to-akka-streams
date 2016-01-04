@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Dennis Vriend
+ * Copyright 2016 Dennis Vriend
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ class TakeStageTest extends TestSpec {
     withIterator() { src ⇒
       src.take(3)
         .runWith(TestSink.probe[Int])
-        .request(3)
+        .request(Integer.MAX_VALUE)
         .expectNext(0, 1, 2)
         .expectComplete()
     }
