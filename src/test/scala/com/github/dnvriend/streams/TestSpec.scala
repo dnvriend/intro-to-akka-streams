@@ -22,6 +22,7 @@ import akka.stream.scaladsl.Source
 import akka.stream.{ ActorMaterializer, Materializer }
 import com.github.dnvriend.streams.util.ClasspathResources
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.prop.PropertyChecks
 import org.scalatest.{ GivenWhenThen, BeforeAndAfterAll, FlatSpec, Matchers }
 import spray.json.DefaultJsonProtocol
 
@@ -29,7 +30,7 @@ import scala.concurrent.duration._
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.util.Try
 
-trait TestSpec extends FlatSpec with Matchers with ScalaFutures with BeforeAndAfterAll with DefaultJsonProtocol with GivenWhenThen with ClasspathResources {
+trait TestSpec extends FlatSpec with Matchers with ScalaFutures with BeforeAndAfterAll with DefaultJsonProtocol with GivenWhenThen with ClasspathResources with PropertyChecks {
   implicit val system: ActorSystem = ActorSystem()
   implicit val ec: ExecutionContext = system.dispatcher
   implicit val mat: Materializer = ActorMaterializer()

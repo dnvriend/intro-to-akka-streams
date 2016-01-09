@@ -30,7 +30,7 @@ class MapStageTest extends TestSpec {
    * - Cancels when: downstream cancels
    */
 
-  "Map" should "transform the stream by applying the function to each element" in {
+  it should "transform the stream by applying the function to each element" in {
     withIterator() { src ⇒
       src.take(3)
         .map(_ * 2)
@@ -38,6 +38,16 @@ class MapStageTest extends TestSpec {
         .request(Integer.MAX_VALUE)
         .expectNext(0, 2, 4)
         .expectComplete()
+    }
+  }
+
+  it should "emit an Error when the map throws an Exception" in {
+    withIterator() { src =>
+      src.take(3)
+        .map(_ => throw new RuntimeException(""))
+        .runWith(TestSink.probe[Int])
+        .request(Int.MaxValue)
+        .expectError()
     }
   }
 }
