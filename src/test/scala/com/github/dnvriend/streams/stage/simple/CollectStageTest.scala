@@ -31,7 +31,34 @@ class CollectStageTest extends TestSpec {
    * - Cancels when: downstream cancels
    */
 
-  "Collect" should "transform the stream by applying the partial function for each element" in {
+  it should "emit only elements on which the partial function is defined" in {
+    withIterator() { src ⇒
+      src.take(10)
+        .collect {
+          case e if e < 5 ⇒ e
+        }
+        .runWith(TestSink.probe[Int])
+        .request(Integer.MAX_VALUE)
+        .expectNext(0, 1, 2, 3, 4)
+        .expectComplete()
+    }
+  }
+
+  it should "transform the stream by applying the partial function" in {
+    withIterator() { src ⇒
+      src.take(10)
+        .collect {
+          case e if e < 5           ⇒ e.toString
+          case e if e >= 5 && e < 8 ⇒ (e * 2).toString
+        }
+        .runWith(TestSink.probe[String])
+        .request(Integer.MAX_VALUE)
+        .expectNext("0", "1", "2", "3", "4", "10", "12", "14")
+        .expectComplete()
+    }
+  }
+
+  it should "transform the stream by applying the partial function for each element" in {
     withIterator() { src ⇒
       src.take(10)
         .collect {

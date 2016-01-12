@@ -42,9 +42,9 @@ class MapStageTest extends TestSpec {
   }
 
   it should "emit an Error when the map throws an Exception" in {
-    withIterator() { src =>
+    withIterator() { src ⇒
       src.take(3)
-        .map(_ => throw new RuntimeException(""))
+        .map(_ ⇒ throw new RuntimeException(""))
         .runWith(TestSink.probe[Int])
         .request(Int.MaxValue)
         .expectError()
