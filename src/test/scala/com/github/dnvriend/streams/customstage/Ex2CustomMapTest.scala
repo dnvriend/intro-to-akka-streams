@@ -16,7 +16,6 @@
 
 package com.github.dnvriend.streams.customstage
 
-import akka.stream.{ Outlet, Inlet, Attributes, FlowShape }
 import akka.stream.stage._
 import akka.stream.testkit.scaladsl.TestSink
 import com.github.dnvriend.streams.TestSpec
@@ -108,36 +107,6 @@ class Ex2CustomMapTest extends TestSpec {
      */
     withIterator(1) { src ⇒
       src.transform(() ⇒ new CustomMapStage(_ * 2))
-        .take(2)
-        .runWith(TestSink.probe[Int])
-        .request(Int.MaxValue)
-        .expectNext(2, 4)
-        .expectComplete()
-    }
-  }
-
-  it should "also be implemented as a GraphStage" in {
-    class CustomMapStage[A, B](f: A ⇒ B) extends GraphStage[FlowShape[A, B]] {
-      val in = Inlet[A]("Map.in")
-      val out = Outlet[B]("Map.out")
-
-      override def shape: FlowShape[A, B] = FlowShape.of(in, out)
-
-      override def createLogic(inheritedAttributes: Attributes): GraphStageLogic = new GraphStageLogic(shape) {
-        setHandler(in, new InHandler {
-          override def onPush(): Unit =
-            push(out, f(grab(in)))
-        })
-
-        setHandler(out, new OutHandler {
-          override def onPull(): Unit =
-            pull(in)
-        })
-      }
-    }
-
-    withIterator(1) { src ⇒
-      src.via(new CustomMapStage(_ * 2))
         .take(2)
         .runWith(TestSink.probe[Int])
         .request(Int.MaxValue)

@@ -38,7 +38,7 @@ class MapAsyncStageTest extends TestSpec {
       src.take(3)
         .mapAsync(1)(e ⇒ Future.successful(e * 2))
         .runWith(TestSink.probe[Int])
-        .request(Integer.MAX_VALUE)
+        .request(Int.MaxValue)
         .expectNext(0, 2, 4)
         .expectComplete()
     }

@@ -35,7 +35,7 @@ class DropWhileStageTest extends TestSpec {
       src.take(10)
         .dropWhile(_ < 5)
         .runWith(TestSink.probe[Int])
-        .request(Integer.MAX_VALUE)
+        .request(Int.MaxValue)
         .expectNext(5, 6, 7, 8, 9)
         .expectComplete()
     }

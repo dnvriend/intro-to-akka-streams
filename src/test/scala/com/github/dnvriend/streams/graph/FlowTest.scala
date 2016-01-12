@@ -16,7 +16,6 @@
 
 package com.github.dnvriend.streams.graph
 
-import akka.stream.ClosedShape
 import akka.stream.scaladsl._
 import com.github.dnvriend.streams.TestSpec
 
@@ -25,32 +24,30 @@ import scala.concurrent.Future
 class FlowTest extends TestSpec {
 
   /**
-   *              / -- f2 --\
-   * (in) --- (bcast)         (merge) -- f3 -- (out)
-   *               | -- f4 -- /
+   *                / -- f2 --\
+   * (in) - f1 - -- (bcast)   (zip) -- f4 -- (out)
+   *               | -- f3 -- /
    */
 
-  val ignoreSink: Sink[Int, Future[Unit]] = Sink.ignore
   val resultSink: Sink[Int, Future[Int]] = Sink.head[Int]
-  val in: Source[Int, Unit] = Source(1 to 1)
+  val in: Source[Int, Unit] = Source.single(1)
 
   "SimpleFlow" should "receive single scalar number" in {
-    val g = RunnableGraph.fromGraph(
-      GraphDSL.create(resultSink) { implicit builder: GraphDSL.Builder[Future[Int]] ⇒
-        out ⇒
-          import GraphDSL.Implicits._
-          val bcast = builder.add(Broadcast[Int](2))
-          val merge = builder.add(Merge[Int](2))
+    val g = FlowGraph.closed(resultSink) { implicit b ⇒
+      out ⇒
+        import FlowGraph.Implicits._
+        val bcast = b.add(Broadcast[Int](2))
+        val zip = b.add(Zip[Int, Int])
 
-          val f1 = Flow[Int].map(_ + 10).log("f1")
-          val f2 = Flow[Int].map(_ + 20).log("f2")
-          val f3 = Flow[Int].map(_ + 30).log("f3")
-          val f4 = Flow[Int].map(_ + 40).log("f4")
+        val f1 = Flow[Int].map(_ + 10)
+        val f2 = Flow[Int].map(_ + 20)
+        val f3 = Flow[Int].map(_ + 30)
+        val f4 = Flow[(Int, Int)].map { case (x, y) ⇒ x + y }
 
-          in ~> f1 ~> bcast ~> f2 ~> merge ~> f3 ~> out
-          bcast ~> f4 ~> merge
-          ClosedShape
-      })
-    g.run().futureValue shouldBe 61
+        in ~> f1 ~> bcast ~> f2 ~> zip.in0 // 11 will be broadcasted, 11 + 20 = 31 in f2,
+        bcast ~> f3 ~> zip.in1 // 11 + 30 = 41 in f3
+        zip.out ~> f4 ~> out // 41 + 31 will be added in f4, which will be 72
+    }
+    g.run().futureValue shouldBe 72
   }
 }

@@ -38,7 +38,7 @@ class CollectStageTest extends TestSpec {
           case e if e < 5 ⇒ e
         }
         .runWith(TestSink.probe[Int])
-        .request(Integer.MAX_VALUE)
+        .request(Int.MaxValue)
         .expectNext(0, 1, 2, 3, 4)
         .expectComplete()
     }
@@ -52,7 +52,7 @@ class CollectStageTest extends TestSpec {
           case e if e >= 5 && e < 8 ⇒ (e * 2).toString
         }
         .runWith(TestSink.probe[String])
-        .request(Integer.MAX_VALUE)
+        .request(Int.MaxValue)
         .expectNext("0", "1", "2", "3", "4", "10", "12", "14")
         .expectComplete()
     }
@@ -67,7 +67,7 @@ class CollectStageTest extends TestSpec {
           case _                    ⇒ "UNKNOWN"
         }
         .runWith(TestSink.probe[String])
-        .request(Integer.MAX_VALUE)
+        .request(Int.MaxValue)
         .expectNext("0", "1", "2", "3", "4", "10", "12", "14", "UNKNOWN", "UNKNOWN")
         .expectComplete()
     }

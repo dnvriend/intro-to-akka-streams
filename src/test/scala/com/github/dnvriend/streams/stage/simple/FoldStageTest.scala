@@ -40,7 +40,7 @@ class FoldStageTest extends TestSpec {
       src.take(4)
         .fold(0) { (c, _) ⇒ c + 1 }
         .runWith(TestSink.probe[Int])
-        .request(Integer.MAX_VALUE)
+        .request(Int.MaxValue)
         .expectNext(4)
         .expectComplete()
     }

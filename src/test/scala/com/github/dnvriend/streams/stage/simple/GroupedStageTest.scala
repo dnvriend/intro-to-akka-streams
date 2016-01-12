@@ -38,7 +38,7 @@ class GroupedStageTest extends TestSpec {
       src.take(5)
         .grouped(3)
         .runWith(TestSink.probe[Seq[Int]])
-        .request(Integer.MAX_VALUE)
+        .request(Int.MaxValue)
         .expectNext(List(0, 1, 2), List(3, 4))
         .expectComplete()
     }

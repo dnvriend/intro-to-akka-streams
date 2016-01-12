@@ -41,7 +41,7 @@ class RecoverStageTest extends TestSpec {
           case e: RuntimeException ⇒ 1000
         }
         .runWith(TestSink.probe[Int])
-        .request(Integer.MAX_VALUE)
+        .request(Int.MaxValue)
         .expectNext(0, 1, 2)
         .expectComplete()
     }
@@ -58,7 +58,7 @@ class RecoverStageTest extends TestSpec {
           case e: RuntimeException ⇒ 1000
         }
         .runWith(TestSink.probe[Int])
-        .request(Integer.MAX_VALUE)
+        .request(Int.MaxValue)
         .expectNextUnordered(0, 1000)
         .expectComplete()
     }

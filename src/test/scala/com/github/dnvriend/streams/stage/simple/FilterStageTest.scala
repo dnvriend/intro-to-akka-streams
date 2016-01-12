@@ -34,7 +34,7 @@ class FilterStageTest extends TestSpec {
       src.take(10)
         .filter(_ % 2 == 0)
         .runWith(TestSink.probe[Int])
-        .request(Integer.MAX_VALUE)
+        .request(Int.MaxValue)
         .expectNext(0, 2, 4, 6, 8)
         .expectComplete()
     }

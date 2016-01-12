@@ -18,7 +18,6 @@ package com.github.dnvriend.streams.customstage
 
 import akka.stream.stage._
 import akka.stream.testkit.scaladsl.TestSink
-import akka.stream.{ Attributes, FlowShape, Inlet, Outlet }
 import com.github.dnvriend.streams.TestSpec
 
 class Ex3CustomFilterTest extends TestSpec {
@@ -93,37 +92,6 @@ class Ex3CustomFilterTest extends TestSpec {
      */
     withIterator(1) { src ⇒
       src.transform(() ⇒ new CustomFilterStage(_ % 2 == 0))
-        .take(5)
-        .runWith(TestSink.probe[Int])
-        .request(Int.MaxValue)
-        .expectNext(2, 4, 6, 8, 10)
-        .expectComplete()
-    }
-  }
-
-  it should "also be implemented as a GraphStage" in {
-    class CustomFilterStage[A](p: A ⇒ Boolean) extends GraphStage[FlowShape[A, A]] {
-      val in = Inlet[A]("Filter.in")
-      val out = Outlet[A]("Filter.out")
-
-      override def shape = FlowShape.of(in, out)
-
-      override def createLogic(inheritedAttributes: Attributes): GraphStageLogic = new GraphStageLogic(shape) {
-        setHandler(in, new InHandler {
-          override def onPush(): Unit = {
-            val elem: A = grab(in)
-            if (p(elem)) push(out, elem) else pull(in)
-          }
-        })
-
-        setHandler(out, new OutHandler {
-          override def onPull(): Unit = pull(in)
-        })
-      }
-    }
-
-    withIterator(1) { src ⇒
-      src.via(new CustomFilterStage(_ % 2 == 0))
         .take(5)
         .runWith(TestSink.probe[Int])
         .request(Int.MaxValue)

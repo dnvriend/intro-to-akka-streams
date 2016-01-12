@@ -56,7 +56,7 @@ class RunnableFlowTest extends TestSpec {
     val sum: Future[Int] = runnable.run()
 
     // create a new processing pipeline, run the network with the result from the future
-    Source.fromFuture(sum).map(_ * 2).runWith(Sink.foreach(println))
+    Source(sum).map(_ * 2).runWith(Sink.foreach(println))
 
     sum.futureValue shouldBe 55
   }
@@ -95,7 +95,7 @@ class RunnableFlowTest extends TestSpec {
     val s1: Source[Int, Unit] = Source(List(1, 2, 3))
 
     // Create a source from a Future
-    val s2: Source[String, Unit] = Source.fromFuture(Future.successful("Hello Streams!"))
+    val s2: Source[String, Unit] = Source(Future.successful("Hello Streams!"))
 
     // Create a source from a single element
     val s3: Source[String, Unit] = Source.single("only one element")

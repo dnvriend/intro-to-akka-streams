@@ -16,6 +16,7 @@
 
 package com.github.dnvriend.streams.stage.simple
 
+import akka.stream.javadsl.FlattenStrategy
 import akka.stream.testkit.scaladsl.TestSink
 import com.github.dnvriend.streams.TestSpec
 
@@ -43,7 +44,7 @@ class MapConcatTest extends TestSpec {
       src.take(3)
         .mapConcat(e ⇒ List(e, e, e))
         .runWith(TestSink.probe[Int])
-        .request(Integer.MAX_VALUE)
+        .request(Int.MaxValue)
         .expectNext(0, 0, 0, 1, 1, 1, 2, 2, 2)
         .expectComplete()
     }
@@ -55,7 +56,7 @@ class MapConcatTest extends TestSpec {
         .grouped(3)
         .mapConcat(identity)
         .runWith(TestSink.probe[Int])
-        .request(Integer.MAX_VALUE)
+        .request(Int.MaxValue)
         .expectNext(0, 1, 2, 3, 4)
         .expectComplete()
     }
@@ -65,7 +66,10 @@ class MapConcatTest extends TestSpec {
     withIterator() { src ⇒
       src.take(10)
         .splitWhen(_ < 3)
-        .concatSubstreams
+        .map {
+          case source ⇒ source.map(_ + 3)
+        }
+        .groupBy(identity)
         .runForeach(println)
     }
   }

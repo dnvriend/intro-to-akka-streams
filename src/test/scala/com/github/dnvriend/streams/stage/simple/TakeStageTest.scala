@@ -39,7 +39,7 @@ class TakeStageTest extends TestSpec {
     withIterator() { src ⇒
       src.take(3)
         .runWith(TestSink.probe[Int])
-        .request(Integer.MAX_VALUE)
+        .request(Int.MaxValue)
         .expectNext(0, 1, 2)
         .expectComplete()
     }

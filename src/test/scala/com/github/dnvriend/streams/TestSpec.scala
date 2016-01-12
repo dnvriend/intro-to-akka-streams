@@ -45,7 +45,7 @@ trait TestSpec extends FlatSpec with Matchers with ScalaFutures with BeforeAndAf
    * Returns a Source[Int, Unit]
    */
   def withIterator[T](start: Int = 0)(f: Source[Int, Unit] ⇒ T): T =
-    f(Source.fromIterator(() ⇒ Iterator from start))
+    f(Source(() ⇒ Iterator from start))
 
   override protected def afterAll(): Unit = {
     system.terminate()

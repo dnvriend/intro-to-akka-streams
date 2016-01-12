@@ -18,7 +18,6 @@ package com.github.dnvriend.streams.customstage
 
 import akka.stream.stage._
 import akka.stream.testkit.scaladsl.TestSink
-import akka.stream.{ Attributes, FlowShape, Inlet, Outlet }
 import com.github.dnvriend.streams.TestSpec
 
 class Ex4StatefulStageTest extends TestSpec {
@@ -103,56 +102,6 @@ class Ex4StatefulStageTest extends TestSpec {
         .runWith(TestSink.probe[(Int, Int)])
         .request(Int.MaxValue)
         .expectNext((20, 25), (60, 75))
-        .expectComplete()
-    }
-  }
-
-  it should "be implemented as a GraphShape" in {
-    // as the StatefulStage will be deprecated, let's look at how to handle state in a GraphShape
-
-    class CustomDuplicatorStage[A]() extends GraphStage[FlowShape[A, A]] {
-
-      val in = Inlet[A]("Duplicator.in")
-      val out = Outlet[A]("Duplicator.out")
-
-      override def shape: FlowShape[A, A] = FlowShape.of(in, out)
-
-      override def createLogic(inheritedAttributes: Attributes): GraphStageLogic = new GraphStageLogic(shape) {
-        // note: all mutable state must be inside the GraphStageLogic
-        var lastElem: Option[A] = None
-
-        setHandler(in, new InHandler {
-          override def onPush(): Unit = {
-            val elem = grab(in)
-            lastElem = Some(elem)
-            push(out, elem)
-          }
-
-          override def onUpstreamFinish(): Unit = {
-            if (lastElem.isDefined) emit(out, lastElem.get)
-            complete(out)
-          }
-        })
-
-        setHandler(out, new OutHandler {
-          override def onPull(): Unit = {
-            if (lastElem.isDefined) {
-              push(out, lastElem.get)
-              lastElem = None
-            } else {
-              pull(in)
-            }
-          }
-        })
-      }
-    }
-
-    withIterator(1) { src ⇒
-      src.take(2)
-        .via(new CustomDuplicatorStage)
-        .runWith(TestSink.probe[Int])
-        .request(Int.MaxValue)
-        .expectNext(1, 1, 2, 2)
         .expectComplete()
     }
   }

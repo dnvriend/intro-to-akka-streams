@@ -39,11 +39,12 @@ class TakeWithinStageTest extends TestSpec {
 
   "TakeWithin" should "take elements in the duration window, when the window has passed, the stream completes" in {
     withIterator() { src ⇒
-      src.takeWithin(500.millis)
+      src
         .map { e ⇒ Thread.sleep(200); e }
+        .takeWithin(500.millis)
         .runWith(TestSink.probe[Int])
-        .request(5)
-        .expectNext(0, 1, 2, 3, 4)
+        .request(Int.MaxValue)
+        .expectNext(0, 1)
         .expectComplete()
     }
   }
