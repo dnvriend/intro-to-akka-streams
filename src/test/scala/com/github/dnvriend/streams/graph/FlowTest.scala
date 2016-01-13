@@ -32,6 +32,7 @@ class FlowTest extends TestSpec {
 
   val ignoreSink: Sink[Int, Future[Unit]] = Sink.ignore
   val resultSink: Sink[Int, Future[Int]] = Sink.head[Int]
+  val foldSink: Sink[AnyRef, Future[Long]] = Sink.fold(0L) { (c, _) ⇒ c + 1 }
   val in: Source[Int, Unit] = Source(1 to 1)
 
   "SimpleFlow" should "receive single scalar number" in {
