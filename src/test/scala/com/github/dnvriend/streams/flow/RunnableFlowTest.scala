@@ -17,6 +17,7 @@
 package com.github.dnvriend.streams.flow
 
 import akka.stream.scaladsl._
+import akka.{ Done, NotUsed }
 import com.github.dnvriend.streams.TestSpec
 
 import scala.concurrent.Future
@@ -43,7 +44,7 @@ class RunnableFlowTest extends TestSpec {
    */
 
   "RunnableFlow" should "be defined" in {
-    val source: Source[Int, Unit] = Source(1 to 10)
+    val source: Source[Int, NotUsed] = Source(1 to 10)
     val sink: Sink[Int, Future[Int]] = Sink.fold[Int, Int](0)(_ + _)
 
     // connect the Source to the Sink, obtaining a RunnableFlow, which is
@@ -92,16 +93,16 @@ class RunnableFlowTest extends TestSpec {
 
   "Sources" should "be created" in {
     // Create a source from an Iterable
-    val s1: Source[Int, Unit] = Source(List(1, 2, 3))
+    val s1: Source[Int, NotUsed] = Source(List(1, 2, 3))
 
     // Create a source from a Future
-    val s2: Source[String, Unit] = Source.fromFuture(Future.successful("Hello Streams!"))
+    val s2: Source[String, NotUsed] = Source.fromFuture(Future.successful("Hello Streams!"))
 
     // Create a source from a single element
-    val s3: Source[String, Unit] = Source.single("only one element")
+    val s3: Source[String, NotUsed] = Source.single("only one element")
 
     // an empty source
-    val s4: Source[String, Unit] = Source.empty[String]
+    val s4: Source[String, NotUsed] = Source.empty[String]
   }
 
   "Sinks" should "be created" in {
@@ -114,10 +115,10 @@ class RunnableFlowTest extends TestSpec {
     val s2: Sink[Int, Future[Int]] = Sink.head[Int]
 
     // A Sink that consumes a stream without doing anything with the elements
-    val s3: Sink[Any, Future[Unit]] = Sink.ignore
+    val s3: Sink[Any, Future[Done]] = Sink.ignore
 
     // A Sink that executes a side-effecting call for every element of the stream
-    val s4: Sink[String, Future[Unit]] = Sink.foreach[String](println(_))
+    val s4: Sink[String, Future[Done]] = Sink.foreach[String](println(_))
   }
 
   /**
@@ -128,7 +129,7 @@ class RunnableFlowTest extends TestSpec {
   "Streams" should "be wired up from different parts" in {
     // Explicitly creating and wiring up a Source, Sink and Flow
     // the Sink is of type Sink[Int, Future[Unit]]
-    val runnable: RunnableGraph[Unit] =
+    val runnable: RunnableGraph[NotUsed] =
       Source(1 to 6)
         .via(
           Flow[Int].map(_ * 2)
@@ -139,13 +140,13 @@ class RunnableFlowTest extends TestSpec {
 
     // Starting from a Source
     val source = Source(1 to 6).map(_ * 2)
-    val runnable2: RunnableGraph[Unit] =
+    val runnable2: RunnableGraph[NotUsed] =
       source
         .to(Sink.foreach(println(_)))
 
     // Starting from a Sink
-    val sink: Sink[Int, Unit] = Flow[Int].map(_ * 2).to(Sink.foreach(println(_)))
-    val runnable3: RunnableGraph[Unit] =
+    val sink: Sink[Int, NotUsed] = Flow[Int].map(_ * 2).to(Sink.foreach(println(_)))
+    val runnable3: RunnableGraph[NotUsed] =
       Source(1 to 6)
         .to(sink)
   }

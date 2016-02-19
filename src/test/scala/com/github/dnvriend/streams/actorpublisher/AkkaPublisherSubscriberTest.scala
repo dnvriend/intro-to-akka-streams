@@ -16,6 +16,7 @@
 
 package com.github.dnvriend.streams.actorpublisher
 
+import akka.{ NotUsed, Done }
 import akka.actor.{ ActorLogging, Props }
 import akka.stream.actor.ActorPublisherMessage._
 import akka.stream.actor.ActorSubscriberMessage.{ OnComplete, OnError, OnNext }
@@ -166,18 +167,18 @@ class AkkaPublisherSubscriberTest extends TestSpec {
   /**
    * A println sink
    */
-  val printlnSink = Sink.foreach(println)
+  val printlnSink: Sink[AnyRef, Future[Done]] = Sink.foreach(println)
 
   /**
    * The GraphDSL that will be reused; it is a simple broadcast, splitting the flow into 2
    */
-  def graph(sink: Sink[Long, Future[Unit]], f: Long ⇒ Unit) = RunnableGraph.fromGraph(
+  def graph(sink: Sink[AnyRef, Future[Done]], f: Long ⇒ Unit) = RunnableGraph.fromGraph(
     GraphDSL.create(sink) { implicit b ⇒
       sink ⇒
         import GraphDSL.Implicits._
         val src = Source.actorPublisher(Props(new NumberPublisher()))
         val numberSink = Sink.actorSubscriber(Props(new NumberSubscriber(1, f)))
-        val bcast = b.add(Broadcast[Long](2))
+        val bcast = b.add(Broadcast[AnyRef](2))
 
         src ~> bcast ~> numberSink
         bcast ~> sink

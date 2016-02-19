@@ -16,6 +16,7 @@
 
 package com.github.dnvriend.streams.flow
 
+import akka.{ Done, NotUsed }
 import akka.stream.scaladsl._
 import akka.stream.testkit.scaladsl._
 import com.github.dnvriend.streams.util.{ OutputCustomer, InputCustomer }
@@ -28,7 +29,7 @@ class AkkaStreamsTest extends TestSpec {
   /**
    * The Source, it is a generator for 100 input customers with random first and random last name
    */
-  lazy val inputCustomersSource: Source[InputCustomer, Unit] = Source((1 to 100).map(_ ⇒ InputCustomer.random()))
+  lazy val inputCustomersSource: Source[InputCustomer, NotUsed] = Source((1 to 100).map(_ ⇒ InputCustomer.random()))
 
   /**
    * The flow, it is a transformer from InputCustomer to OutputCustomer
@@ -48,7 +49,7 @@ class AkkaStreamsTest extends TestSpec {
   }
 
   "The Akka Stream Chain" should "execute normally" in {
-    val chain: Future[Unit] = inputCustomersSource.via(normalizeFlow).runWith(writeCustomersSink)
+    val chain: Future[Done] = inputCustomersSource.via(normalizeFlow).runWith(writeCustomersSink)
     chain.toTry should be a 'success
   }
 

@@ -9,4 +9,11 @@ addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.8.0")
 addSbtPlugin("com.typesafe.sbt" % "sbt-scalariform" % "1.3.0")
 
 // enable updating file headers eg. for copyright
-addSbtPlugin("de.heikoseeberger" % "sbt-header"      % "1.5.0")
+addSbtPlugin("de.heikoseeberger" % "sbt-header" % "1.5.0")
+
+// code lint //
+addSbtPlugin("org.brianmckenna" % "sbt-wartremover" % "0.14")
+
+// generates Scala source from your build definitions //
+// see: https://github.com/sbt/sbt-buildinfo
+addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.5.0")

@@ -7,15 +7,14 @@ version := "1.0.0"
 scalaVersion := "2.11.7"
 
 libraryDependencies ++= {
-  val akkaVersion = "2.4.1"
-  val akkaStreamAndHttpVersion = "2.0.1"
+  val akkaVersion = "2.4.2"
   Seq(
     "com.typesafe.akka" %% "akka-actor" % akkaVersion,
-    "com.typesafe.akka" %% "akka-stream-experimental" % akkaStreamAndHttpVersion,
-    "com.typesafe.akka" %% "akka-http-core-experimental" % akkaStreamAndHttpVersion,
-    "com.typesafe.akka" %% "akka-http-spray-json-experimental" % akkaStreamAndHttpVersion,
-    "com.typesafe.akka" %% "akka-stream-testkit-experimental" % akkaStreamAndHttpVersion % Test,
-    "org.scalatest" %% "scalatest" % "2.2.4" % Test,
+    "com.typesafe.akka" %% "akka-stream" % akkaVersion,
+    "com.typesafe.akka" %% "akka-http-core" % akkaVersion,
+    "com.typesafe.akka" %% "akka-http-spray-json-experimental" % akkaVersion,
+    "com.typesafe.akka" %% "akka-stream-testkit" % akkaVersion % Test,
+    "org.scalatest" %% "scalatest" % "2.2.6" % Test,
     "org.scalacheck" %% "scalacheck" % "1.12.5" % Test
   )
 }
@@ -47,4 +46,15 @@ headers := Map(
   "conf" -> Apache2_0("2016", "Dennis Vriend", "#")
 )
 
-enablePlugins(AutomateHeaderPlugin)
+// configure code lint //
+//wartremoverWarnings ++= Seq(Wart.Any, Wart.Serializable)
+wartremoverWarnings ++= Warts.unsafe
+
+// configure build info //
+// build info configuration //
+buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion)
+
+buildInfoPackage := "com.github.dnvriend"
+
+// enable plugins //
+enablePlugins(AutomateHeaderPlugin, BuildInfoPlugin)

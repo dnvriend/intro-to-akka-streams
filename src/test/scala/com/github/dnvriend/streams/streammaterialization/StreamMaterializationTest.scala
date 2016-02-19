@@ -16,6 +16,7 @@
 
 package com.github.dnvriend.streams.streammaterialization
 
+import akka.Done
 import akka.stream.scaladsl.Sink
 import com.github.dnvriend.streams.TestSpec
 
@@ -48,7 +49,7 @@ class StreamMaterializationTest extends TestSpec {
     withIterator() { src ⇒
       src.take(10)
         .runForeach(_ ⇒ ())
-        .futureValue shouldBe ()
+        .futureValue shouldBe Done
     }
   }
 
@@ -56,7 +57,7 @@ class StreamMaterializationTest extends TestSpec {
     withIterator() { src ⇒
       src.take(10)
         .runWith(Sink.foreach(_ ⇒ ()))
-        .futureValue shouldBe ()
+        .futureValue shouldBe Done
     }
   }
 }

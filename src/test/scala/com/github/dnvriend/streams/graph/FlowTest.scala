@@ -18,6 +18,7 @@ package com.github.dnvriend.streams.graph
 
 import akka.stream.ClosedShape
 import akka.stream.scaladsl._
+import akka.{ Done, NotUsed }
 import com.github.dnvriend.streams.TestSpec
 
 import scala.concurrent.Future
@@ -30,10 +31,10 @@ class FlowTest extends TestSpec {
    *               | -- f4 -- /
    */
 
-  val ignoreSink: Sink[Int, Future[Unit]] = Sink.ignore
+  val ignoreSink: Sink[Int, Future[Done]] = Sink.ignore
   val resultSink: Sink[Int, Future[Int]] = Sink.head[Int]
   val foldSink: Sink[AnyRef, Future[Long]] = Sink.fold(0L) { (c, _) ⇒ c + 1 }
-  val in: Source[Int, Unit] = Source(1 to 1)
+  val in: Source[Int, NotUsed] = Source(1 to 1)
 
   "SimpleFlow" should "receive single scalar number" in {
     val g = RunnableGraph.fromGraph(

@@ -16,6 +16,7 @@
 
 package com.github.dnvriend.streams
 
+import akka.NotUsed
 import akka.actor._
 import akka.event.{ Logging, LoggingAdapter }
 import akka.stream.scaladsl.Source
@@ -23,7 +24,7 @@ import akka.stream.{ ActorMaterializer, Materializer }
 import com.github.dnvriend.streams.util.ClasspathResources
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.prop.PropertyChecks
-import org.scalatest.{ GivenWhenThen, BeforeAndAfterAll, FlatSpec, Matchers }
+import org.scalatest.{ BeforeAndAfterAll, FlatSpec, GivenWhenThen, Matchers }
 import spray.json.DefaultJsonProtocol
 
 import scala.concurrent.duration._
@@ -44,7 +45,7 @@ trait TestSpec extends FlatSpec with Matchers with ScalaFutures with BeforeAndAf
   /**
    * Returns a Source[Int, Unit]
    */
-  def withIterator[T](start: Int = 0)(f: Source[Int, Unit] ⇒ T): T =
+  def withIterator[T](start: Int = 0)(f: Source[Int, NotUsed] ⇒ T): T =
     f(Source.fromIterator(() ⇒ Iterator from start))
 
   override protected def afterAll(): Unit = {
