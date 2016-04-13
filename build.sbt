@@ -4,10 +4,10 @@ organization := "com.github.dnvriend"
 
 version := "1.0.0"
 
-scalaVersion := "2.11.7"
+scalaVersion := "2.11.8"
 
 libraryDependencies ++= {
-  val akkaVersion = "2.4.2"
+  val akkaVersion = "2.4.3"
   Seq(
     "com.typesafe.akka" %% "akka-actor" % akkaVersion,
     "com.typesafe.akka" %% "akka-stream" % akkaVersion,
