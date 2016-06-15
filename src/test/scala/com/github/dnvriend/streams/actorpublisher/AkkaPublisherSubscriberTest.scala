@@ -173,17 +173,17 @@ class AkkaPublisherSubscriberTest extends TestSpec {
    * The GraphDSL that will be reused; it is a simple broadcast, splitting the flow into 2
    */
   def graph(sink: Sink[AnyRef, Future[Done]], f: Long ⇒ Unit) = RunnableGraph.fromGraph(
-    GraphDSL.create(sink) { implicit b ⇒
-      sink ⇒
-        import GraphDSL.Implicits._
-        val src = Source.actorPublisher(Props(new NumberPublisher()))
-        val numberSink = Sink.actorSubscriber(Props(new NumberSubscriber(1, f)))
-        val bcast = b.add(Broadcast[AnyRef](2))
+    GraphDSL.create(sink) { implicit b ⇒ sink ⇒
+      import GraphDSL.Implicits._
+      val src = Source.actorPublisher(Props(new NumberPublisher()))
+      val numberSink = Sink.actorSubscriber(Props(new NumberSubscriber(1, f)))
+      val bcast = b.add(Broadcast[AnyRef](2))
 
-        src ~> bcast ~> numberSink
-        bcast ~> sink
-        ClosedShape
-    })
+      src ~> bcast ~> numberSink
+      bcast ~> sink
+      ClosedShape
+    }
+  )
 
   "NumberProducer" should "count some time" in {
     // the default demand is 4, and will not ask for more

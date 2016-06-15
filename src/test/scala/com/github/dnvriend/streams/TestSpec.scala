@@ -20,6 +20,8 @@ import akka.NotUsed
 import akka.actor._
 import akka.event.{ Logging, LoggingAdapter }
 import akka.stream.scaladsl.Source
+import akka.stream.testkit.TestSubscriber
+import akka.stream.testkit.javadsl.TestSink
 import akka.stream.{ ActorMaterializer, Materializer }
 import com.github.dnvriend.streams.util.ClasspathResources
 import org.scalatest.concurrent.ScalaFutures
@@ -27,6 +29,7 @@ import org.scalatest.prop.PropertyChecks
 import org.scalatest.{ BeforeAndAfterAll, FlatSpec, GivenWhenThen, Matchers }
 import spray.json.DefaultJsonProtocol
 
+import scala.collection.immutable
 import scala.concurrent.duration._
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.util.Try
@@ -41,6 +44,9 @@ trait TestSpec extends FlatSpec with Matchers with ScalaFutures with BeforeAndAf
   implicit class FutureToTry[T](f: Future[T]) {
     def toTry: Try[T] = Try(f.futureValue)
   }
+
+  def fromCollection[A](xs: immutable.Iterable[A])(f: TestSubscriber.Probe[A] ⇒ Unit): Unit =
+    f(Source(xs).runWith(TestSink.probe(system)))
 
   /**
    * Returns a Source[Int, Unit]
