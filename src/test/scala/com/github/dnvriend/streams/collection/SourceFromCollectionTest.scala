@@ -19,6 +19,30 @@ package com.github.dnvriend.streams.collection
 import com.github.dnvriend.streams.TestSpec
 
 class SourceFromCollectionTest extends TestSpec {
+  "null" should "throw NullPointerException" in {
+    intercept[NullPointerException] {
+      fromCollection[Nothing](null) { tp ⇒
+        tp.request(1)
+        tp.expectComplete()
+      }
+    }.getMessage should include("Element must not be null, rule 2.13")
+  }
+
+  "Option" should "when empty, complete" in {
+    fromCollection(Option.empty[String].toList) { tp ⇒
+      tp.request(1)
+      tp.expectComplete()
+    }
+  }
+
+  it should "emit a single element then complete" in {
+    fromCollection(Option("a").toList) { tp ⇒
+      tp.request(1)
+      tp.expectNext("a")
+      tp.expectComplete()
+    }
+  }
+
   "List" should "when empty, complete" in {
     fromCollection(List.empty[String]) { tp ⇒
       tp.request(1)
@@ -36,7 +60,23 @@ class SourceFromCollectionTest extends TestSpec {
     }
   }
 
-  it should "complete after getting elements" in {
+  it should "emit onError when processing list of null values" in {
+    fromCollection(List.fill(3)(null)) { tp ⇒
+      tp.request(1)
+      tp.expectError().getMessage should include("Element must not be null, rule 2.13")
+    }
+  }
+
+  it should "emit onError when processing list containing null values" in {
+    fromCollection(List("a", null, "b")) { tp ⇒
+      tp.request(1)
+      tp.expectNext("a")
+      tp.request(1)
+      tp.expectError().getMessage should include("Element must not be null, rule 2.13")
+    }
+  }
+
+  it should "emit three elements then complete" in {
     fromCollection(List("a", "b", "c")) { tp ⇒
       tp.request(1)
       tp.expectNext("a")
@@ -55,7 +95,7 @@ class SourceFromCollectionTest extends TestSpec {
     }
   }
 
-  it should "complete after getting elements" in {
+  it should "emit three elements then complete" in {
     fromCollection(Vector("a", "b", "c")) { tp ⇒
       tp.request(1)
       tp.expectNext("a")
@@ -74,7 +114,7 @@ class SourceFromCollectionTest extends TestSpec {
     }
   }
 
-  it should "complete after getting elements" in {
+  it should "emit three elements then complete" in {
     fromCollection(Set("a", "b", "c")) { tp ⇒
       tp.request(1)
       tp.expectNext("a")
