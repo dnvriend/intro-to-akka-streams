@@ -23,6 +23,7 @@ import akka.stream.scaladsl.Source
 import akka.stream.testkit.TestSubscriber
 import akka.stream.testkit.javadsl.TestSink
 import akka.stream.{ ActorMaterializer, Materializer }
+import akka.testkit.TestProbe
 import com.github.dnvriend.streams.util.ClasspathResources
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.prop.PropertyChecks
@@ -48,9 +49,15 @@ trait TestSpec extends FlatSpec with Matchers with ScalaFutures with BeforeAndAf
   def fromCollection[A](xs: immutable.Iterable[A])(f: TestSubscriber.Probe[A] ⇒ Unit): Unit =
     f(Source(xs).runWith(TestSink.probe(system)))
 
-  /**
-   * Returns a Source[Int, Unit]
-   */
+  def killActors(refs: ActorRef*): Unit = {
+    val tp = TestProbe()
+    refs.foreach { ref ⇒
+      tp watch ref
+      tp.send(ref, PoisonPill)
+      tp.expectTerminated(ref)
+    }
+  }
+
   def withIterator[T](start: Int = 0)(f: Source[Int, NotUsed] ⇒ T): T =
     f(Source.fromIterator(() ⇒ Iterator from start))
 
