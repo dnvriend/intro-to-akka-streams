@@ -22,9 +22,10 @@ import akka.stream.scaladsl.Source
 import akka.stream.stage.{ GraphStage, GraphStageLogic, OutHandler }
 import akka.stream.testkit.TestSubscriber
 import akka.stream.testkit.scaladsl.TestSink
-import akka.stream.{ Attributes, Materializer, Outlet, SourceShape }
+import akka.stream._
 import com.github.dnvriend.streams.TestSpec
 
+import scala.concurrent.Future
 import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.duration._
 
@@ -74,14 +75,34 @@ class CustomNumbersSource extends GraphStage[SourceShape[Int]] {
 
       setHandler(out, new OutHandler {
         override def onPull(): Unit = {
-          push(out, counter)
+          push(out, counter) // Emits an element through the given output port.
+          //          complete(out) // Signals that there will be no more elements emitted on the given port.
+          //          fail(out, new RuntimeException) // Signals failure through the given port.
           counter += 1
+        }
+
+        @scala.throws[Exception](classOf[Exception])
+        override def onDownstreamFinish(): Unit = {
+          //          println("===> Upstream cancelled the stream")
+          // re-using super
+          super.onDownstreamFinish()
         }
       })
     }
 }
 object CustomNumbersSource {
-  def apply(): Source[Int, NotUsed] = Source.fromGraph(new CustomNumbersSource)
+  def apply()(implicit mat: Materializer): Source[Int, NotUsed] = {
+    // start documentation //
+    // the following is just some documentation for the api //
+    //    val sourceGraph: Graph[SourceShape[Int], NotUsed] = new CustomNumbersSource
+    //    val mySource: Source[Int, NotUsed] = Source.fromGraph(sourceGraph)
+    //    val result1: Future[Int] = mySource.take(10).runFold(0)(_ + _)
+    //    val result2: Future[Int] = mySource.take(100).runFold(0)(_ + _)
+    // end documentation //
+
+    // off course you would just use the next call //
+    Source.fromGraph(new CustomNumbersSource)
+  }
 
   def withTestProbe(within: FiniteDuration = 10.seconds)(f: TestSubscriber.Probe[Int] ⇒ Unit)(implicit system: ActorSystem, mat: Materializer): Unit = {
     val probe = apply().runWith(TestSink.probe[Int])
