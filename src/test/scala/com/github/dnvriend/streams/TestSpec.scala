@@ -46,6 +46,16 @@ trait TestSpec extends FlatSpec with Matchers with ScalaFutures with BeforeAndAf
     def toTry: Try[T] = Try(f.futureValue)
   }
 
+  implicit class SourceOps[A](src: Source[A, NotUsed]) {
+    def testProbe(f: TestSubscriber.Probe[A] ⇒ Unit): Unit = {
+      val tp = src.runWith(TestSink.probe(system))
+      tp.within(10.seconds)(f(tp))
+    }
+  }
+
+  def withIterator[T](start: Int = 0)(f: Source[Int, NotUsed] ⇒ T): T =
+    f(Source.fromIterator(() ⇒ Iterator from start))
+
   def fromCollection[A](xs: immutable.Iterable[A])(f: TestSubscriber.Probe[A] ⇒ Unit): Unit =
     f(Source(xs).runWith(TestSink.probe(system)))
 
@@ -57,9 +67,6 @@ trait TestSpec extends FlatSpec with Matchers with ScalaFutures with BeforeAndAf
       tp.expectTerminated(ref)
     }
   }
-
-  def withIterator[T](start: Int = 0)(f: Source[Int, NotUsed] ⇒ T): T =
-    f(Source.fromIterator(() ⇒ Iterator from start))
 
   override protected def afterAll(): Unit = {
     system.terminate()
