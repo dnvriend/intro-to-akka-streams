@@ -16,20 +16,33 @@
 
 package com.github.dnvriend.streams.source
 
-import akka.stream.scaladsl.{ Concat, Keep, Merge, Sink, Source }
+import akka.stream.scaladsl.{ Concat, Merge, Sink, Source }
 import com.github.dnvriend.streams.TestSpec
 
 class SourceTest extends TestSpec {
   type Seq[A] = scala.collection.immutable.Seq[A]
 
+  // Takes multiple streams and outputs one stream formed from the input streams
+  // by first emitting all of the elements from the first stream and then emitting
+  // all of the elements from the second stream, etc.
   it should "concat three sources" in {
     Source.combine(
       Source.single("Hello"),
-      Source.single("World"),
+      Source.repeat("World").take(5),
       Source.single("!")
     )(Concat(_)).runWith(Sink.seq)
-      .futureValue shouldBe Seq("Hello", "World", "!")
+      .futureValue shouldBe Seq("Hello", "World", "World", "World", "World", "World", "!")
+  }
 
+  // Merge several streams, taking elements as they arrive from input streams
+  // picking randomly when several have elements ready
+  it should "merge three sources" in {
+    Source.combine(
+      Source.single("Hello"),
+      Source.repeat("World").take(5),
+      Source.single("!")
+    )(Merge(_)).runWith(Sink.seq)
+      .futureValue shouldBe Seq("Hello", "!", "World", "World", "World", "World", "World")
   }
 
   it should "emit a single element" in {
