@@ -21,37 +21,42 @@ import com.github.dnvriend.streams.TestSpec
 
 class SourceTest extends TestSpec {
   type Seq[A] = scala.collection.immutable.Seq[A]
-  it should "concat three sources" in {
 
+  it should "concat three sources" in {
     Source.combine(
       Source.single("Hello"),
       Source.single("World"),
       Source.single("!")
-    )(Concat(_)).runWith(Sink.seq).futureValue shouldBe Seq("Hello", "World", "!")
+    )(Concat(_)).runWith(Sink.seq)
+      .futureValue shouldBe Seq("Hello", "World", "!")
 
   }
 
   it should "emit a single element" in {
-    Source.single("Foo").recover {
-      case t: Throwable ⇒
-        "Bar"
-    }.runWith(Sink.seq).futureValue shouldBe Seq("Foo")
+    Source.single("Foo")
+      .recover { case t: Throwable ⇒ "Bar" }
+      .runWith(Sink.seq).futureValue shouldBe Seq("Foo")
   }
 
-  it should "recover a failed stream" in {
-    Source.single("Foo").map { e ⇒
-      throw new RuntimeException("")
-      e
-    }.recover {
-      case t: Throwable ⇒ "Bar"
-    }.runWith(Sink.seq).futureValue shouldBe Seq("Bar")
+  it should "recover from an exception after materialization" in {
+    Source.fromIterator(() ⇒ Iterator(throw new RuntimeException("")))
+      .recover { case t: Throwable ⇒ "Bar" }
+      .runWith(Sink.seq).futureValue shouldBe Seq("Bar")
   }
 
+  it should "recover a failed stream when exception in a stage" in {
+    Source.single("Foo")
+      .map { e ⇒ throw new RuntimeException(""); e }
+      .recover { case t: Throwable ⇒ "Bar" }
+      .runWith(Sink.seq).futureValue shouldBe Seq("Bar")
+  }
+
+  // cause, exception gets evaluated before materialization of the graph
   it should "not recover from an exception in the source" in {
     intercept[RuntimeException] { // thus an exception is thrown up the stack; the exception is not propagated
-      Source.single(throw new RuntimeException("")).recover {
-        case t: Throwable ⇒ "Bar"
-      }.runWith(Sink.seq).toTry should be a 'failure
+      Source.single(throw new RuntimeException(""))
+        .recover { case t: Throwable ⇒ "Bar" }
+        .runWith(Sink.seq).toTry should be a 'failure
     }
 
   }
