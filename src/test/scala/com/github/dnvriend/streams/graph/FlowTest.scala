@@ -55,4 +55,47 @@ class FlowTest extends TestSpec {
     )
     g.run().futureValue shouldBe 61
   }
+
+  "Graphs" should "return materialized values when a component has been added to it" in {
+    val xx: RunnableGraph[NotUsed] = RunnableGraph.fromGraph(GraphDSL.create() { implicit b ⇒
+      import GraphDSL.Implicits._
+      val src = Source(1 to 5)
+      val snk = Sink.ignore
+      src ~> snk
+      ClosedShape
+    })
+
+    val snk = Sink.ignore
+    val xy: RunnableGraph[Future[Done]] = RunnableGraph.fromGraph(GraphDSL.create(snk) { implicit b ⇒ (snk) ⇒
+      import GraphDSL.Implicits._
+      val src = Source(1 to 5)
+      src ~> snk
+      ClosedShape
+    })
+
+    val snk2 = Sink.ignore
+    val xz: RunnableGraph[(Future[Done], Future[Done])] = RunnableGraph.fromGraph(GraphDSL.create(snk, snk2)(Keep.both) { implicit b ⇒ (s, s2) ⇒
+      import GraphDSL.Implicits._
+      val src = Source(1 to 5)
+      val bcast = b.add(Broadcast[Int](2, false))
+      src ~> bcast
+      bcast ~> s
+      bcast ~> s2
+      ClosedShape
+    })
+
+    val snk3 = Sink.ignore
+    val zz: RunnableGraph[(Future[Done], Future[Done], Future[Done])] = RunnableGraph.fromGraph(GraphDSL.create(snk, snk2, snk3)((_, _, _)) { implicit b ⇒ (s, s2, s3) ⇒
+      import GraphDSL.Implicits._
+      val src = Source(1 to 5)
+      val bcast = b.add(Broadcast[Int](3, false))
+      src ~> bcast
+      bcast ~> s
+      bcast ~> s2
+      bcast ~> s3
+      ClosedShape
+    })
+
+    // and so on, and so forth...
+  }
 }
