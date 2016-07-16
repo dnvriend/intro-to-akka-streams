@@ -16,18 +16,27 @@
 
 package com.github.dnvriend.streams.flow
 
-import akka.stream.scaladsl.{ Framing, Sink, Source }
+import akka.stream.{ OverflowStrategy, SourceShape }
+import akka.stream.scaladsl.{ Concat, Framing, GraphDSL, Merge, RunnableGraph, Sink, Source }
 import akka.util.ByteString
 import com.github.dnvriend.streams.TestSpec
 import com.github.dnvriend.streams.flow.SimpleFlowTest.StarWars
 
 import scala.collection.immutable.{ Iterable, Seq }
+import scala.concurrent.Future
 
 object SimpleFlowTest {
+
   final case class StarWars(first: String, last: String)
+
 }
 
 class SimpleFlowTest extends TestSpec {
+
+  it should "mapAsync with odd number of parallelism" in {
+    Source(1 to 3).mapAsync(5)(i ⇒ Future(i * 2))
+      .runWith(Sink.seq).futureValue shouldBe Seq(2, 4, 6)
+  }
 
   it should "zip with an index" in {
     Source(Seq("a", "b")).statefulMapConcat { () ⇒
@@ -42,6 +51,19 @@ class SimpleFlowTest extends TestSpec {
     Source(List("a", "b", "c"))
       .zip(Source.fromIterator(() ⇒ Iterator from 1))
       .runWith(Sink.seq).futureValue shouldBe Seq(("a", 1), ("b", 2), ("c", 3))
+  }
+
+  it should "emit only odd numbers" in {
+    Source.fromIterator(() ⇒ Iterator from 0).statefulMapConcat { () ⇒
+      var index = 1L
+      def next: Long = {
+        index += 1L
+        if (index % 2 != 0) index else {
+          next
+        }
+      }
+      (string) ⇒ Iterable((string, next))
+    }.take(10).runForeach(println)
   }
 
   it should "create tuples" in {
@@ -72,5 +94,33 @@ class SimpleFlowTest extends TestSpec {
         StarWars("lando", "calrissian"),
         StarWars("mace", "windu")
       )
+  }
+
+  it should "concat" in {
+    Source(List(1, 2)).concat(Source(List(3, 4)))
+      .runWith(Sink.seq).futureValue shouldBe Seq(1, 2, 3, 4)
+  }
+
+  it should "merge" in {
+    Source.fromGraph(GraphDSL.create() { implicit b ⇒
+      import GraphDSL.Implicits._
+      val merge = b.add(Concat[Int](2))
+      Source.single(1) ~> merge
+      Source.repeat(5) ~> merge
+      SourceShape(merge.out)
+    }).take(4).runWith(Sink.seq).futureValue shouldBe Seq(1, 5, 5, 5)
+
+    Source.single(1).concat(Source.repeat(5))
+      .take(4).runWith(Sink.seq).futureValue shouldBe Seq(1, 5, 5, 5)
+  }
+
+  it should "unfold" in {
+    import scala.concurrent.duration._
+    Source.tick(0.seconds, 500.millis, 0).flatMapConcat { _ ⇒
+      Source.unfold(0) { (e) ⇒
+        val next = e + 1
+        if (next > 3) None else Some((next, next))
+      }
+    }.take(6).runWith(Sink.seq).futureValue shouldBe Seq(1, 2, 3, 1, 2, 3)
   }
 }
