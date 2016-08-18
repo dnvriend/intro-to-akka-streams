@@ -37,12 +37,16 @@ class SourceTest extends TestSpec {
   // Merge several streams, taking elements as they arrive from input streams
   // picking randomly when several have elements ready
   it should "merge three sources" in {
-    Source.combine(
+    val xs = Source.combine(
       Source.single("Hello"),
       Source.repeat("World").take(5),
       Source.single("!")
     )(Merge(_)).runWith(Sink.seq)
-      .futureValue shouldBe Seq("Hello", "!", "World", "World", "World", "World", "World")
+      .futureValue
+    xs should contain allOf ("Hello", "!", "World")
+    xs.count(_ == "World") shouldBe 5
+    xs.count(_ == "!") shouldBe 1
+    xs.count(_ == "Hello") shouldBe 1
   }
 
   it should "emit a single element" in {
