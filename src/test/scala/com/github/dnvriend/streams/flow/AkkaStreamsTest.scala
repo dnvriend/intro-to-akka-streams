@@ -34,7 +34,7 @@ class AkkaStreamsTest extends TestSpec {
   /**
    * The flow, it is a transformer from InputCustomer to OutputCustomer
    */
-  lazy val normalizeFlow = Flow[InputCustomer].mapConcat { (inputCustomer: InputCustomer) ⇒
+  lazy val normalizeFlow: Flow[InputCustomer, OutputCustomer, NotUsed] = Flow[InputCustomer].mapConcat { (inputCustomer: InputCustomer) ⇒
     inputCustomer.name.split(" ").toList match {
       case firstName :: lastName :: Nil ⇒ immutable.Seq(OutputCustomer(firstName, lastName))
       case _                            ⇒ immutable.Seq[OutputCustomer]()

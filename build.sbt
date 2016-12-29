@@ -6,20 +6,20 @@ version := "1.0.0"
 
 scalaVersion := "2.11.8"
 
-libraryDependencies ++= {
-  val akkaVersion = "2.4.12"
-  val httpVersion = "3.0.0-RC1"
-  Seq(
-    "com.typesafe.akka" %% "akka-actor" % akkaVersion,
-    "com.typesafe.akka" %% "akka-stream" % akkaVersion,
-    "com.typesafe.akka" %% "akka-http-core" % httpVersion,
-    "com.typesafe.akka" %% "akka-http-spray-json" % httpVersion,
-    "com.typesafe.akka" %% "akka-slf4j" % akkaVersion,
-    "ch.qos.logback" % "logback-classic" % "1.1.7",
-    "com.typesafe.akka" %% "akka-stream-testkit" % akkaVersion % Test,
-    "org.scalatest" %% "scalatest" % "3.0.0" % Test
-  )
-}
+val akkaVersion = "2.4.12"
+val httpVersion = "10.0.1"
+
+libraryDependencies += "com.typesafe.akka" %% "akka-actor" % akkaVersion
+libraryDependencies += "com.typesafe.akka" %% "akka-stream" % akkaVersion
+libraryDependencies += "com.typesafe.akka" %% "akka-http-core" % httpVersion
+libraryDependencies += "com.typesafe.akka" %% "akka-http-spray-json" % httpVersion
+libraryDependencies += "com.typesafe.akka" %% "akka-slf4j" % akkaVersion
+libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.1.8"
+
+libraryDependencies += "com.typesafe.akka" %% "akka-testkit" % akkaVersion % Test
+libraryDependencies += "com.typesafe.akka" %% "akka-stream-testkit" % akkaVersion % Test
+libraryDependencies += "org.typelevel" %% "scalaz-scalatest" % "1.1.1" % Test
+libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.0-M1" % Test
 
 fork in Test := true
 
@@ -54,4 +54,7 @@ buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion)
 buildInfoPackage := "com.github.dnvriend"
 
 // enable plugins //
-enablePlugins(AutomateHeaderPlugin, BuildInfoPlugin)
+enablePlugins(AutomateHeaderPlugin)
+enablePlugins(BuildInfoPlugin)
+enablePlugins(PlayScala)
+disablePlugins(PlayLayoutPlugin)

@@ -22,7 +22,7 @@ import com.github.dnvriend.streams.TestSpec
 import scala.concurrent.Future
 
 class FailureTest extends TestSpec {
-  def failedFuture = (_: Any) ⇒ Future.failed(new Throwable("Failure"))
+  def failedFuture: (Any) => Future[Nothing] = (_: Any) ⇒ Future.failed(new Throwable("Failure"))
 
   it should "fail a stream with a Future.failed" in {
     withIterator() { src ⇒
