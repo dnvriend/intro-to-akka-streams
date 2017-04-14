@@ -19,8 +19,9 @@ package com.github.dnvriend.streams.flow
 import akka.stream.{ OverflowStrategy, SourceShape }
 import akka.stream.scaladsl.{ Concat, Framing, GraphDSL, Merge, RunnableGraph, Sink, Source }
 import akka.util.ByteString
-import com.github.dnvriend.streams.TestSpec
+import com.github.dnvriend.streams.{ Person, TestSpec }
 import com.github.dnvriend.streams.flow.SimpleFlowTest.StarWars
+import play.api.libs.json.Json
 
 import scala.collection.immutable.{ Iterable, Seq }
 import scala.concurrent.Future

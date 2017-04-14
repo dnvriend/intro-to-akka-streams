@@ -6,20 +6,20 @@ version := "1.0.0"
 
 scalaVersion := "2.11.8"
 
-val akkaVersion = "2.4.12"
-val httpVersion = "10.0.1"
+val akkaVersion = "2.4.17"
+val httpVersion = "10.0.5"
 
 libraryDependencies += "com.typesafe.akka" %% "akka-actor" % akkaVersion
 libraryDependencies += "com.typesafe.akka" %% "akka-stream" % akkaVersion
 libraryDependencies += "com.typesafe.akka" %% "akka-http-core" % httpVersion
 libraryDependencies += "com.typesafe.akka" %% "akka-http-spray-json" % httpVersion
 libraryDependencies += "com.typesafe.akka" %% "akka-slf4j" % akkaVersion
-libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.1.8"
+libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.3"
 
 libraryDependencies += "com.typesafe.akka" %% "akka-testkit" % akkaVersion % Test
 libraryDependencies += "com.typesafe.akka" %% "akka-stream-testkit" % akkaVersion % Test
-libraryDependencies += "org.typelevel" %% "scalaz-scalatest" % "1.1.1" % Test
-libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.0-M1" % Test
+libraryDependencies += "org.typelevel" %% "scalaz-scalatest" % "1.1.2" % Test
+libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.0" % Test
 
 fork in Test := true
 
